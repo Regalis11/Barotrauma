@@ -337,6 +337,10 @@ namespace Barotrauma
                 {
                     targetingTag = tP.Tag;
                 }
+                else if (AIParams.TryGetTarget(targetCharacter.Params.Group.ToString().ToLowerInvariant() + "_group", out CharacterParams.TargetParams tG))
+                {
+                    targetingTag = tG.Tag;
+                }
                 else if (targetCharacter.AIController is EnemyAIController enemy)
                 {
                     if (targetCharacter.IsHusk && AIParams.HasTag("husk"))
@@ -1799,7 +1803,7 @@ namespace Barotrauma
                         ChangeTargetState(attacker, AIState.Attack, 100);
                     }
                 }
-                else if (!AIParams.HasTag(attacker.SpeciesName))
+                else if (!AIParams.HasTag(attacker.SpeciesName) && (!AIParams.HasTag(attacker.Params.Group.ToString().ToLowerInvariant() + "_group")))
                 {
                     if (attacker.IsHusk)
                     {
@@ -2136,6 +2140,10 @@ namespace Barotrauma
                     else if (AIParams.TryGetTarget(targetCharacter.SpeciesName, out CharacterParams.TargetParams tP))
                     {
                         targetingTag = tP.Tag;
+                    }
+                    else if (AIParams.TryGetTarget(targetCharacter.Params.Group.ToString().ToLowerInvariant()+"_group", out CharacterParams.TargetParams tG))
+                    {
+                        targetingTag = tG.Tag;
                     }
                     else
                     {
@@ -3050,6 +3058,7 @@ namespace Barotrauma
             isStateChanged = true;
             SetStateResetTimer();
             ChangeParams(target.SpeciesName, state, priority);
+            ChangeParams(target.Params.Group.ToString().ToLowerInvariant()+"_group", state, priority);
             if (target.IsHuman)
             {
                 // Target also items, because if we are blind and the target doesn't move, we can only perceive the target when it uses items
