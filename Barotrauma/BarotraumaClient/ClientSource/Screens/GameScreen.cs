@@ -131,7 +131,7 @@ namespace Barotrauma
 
             if (GameMain.GameSession != null) { GameMain.GameSession.Draw(spriteBatch); }
 
-            if (Character.Controlled == null && !GUI.DisableHUD)
+            if ((Character.Controlled == null || !Character.Controlled.IsHuman) && !GUI.DisableHUD) // Spectators and player monsters can see the submarine icons
             {
                 for (int i = 0; i < Submarine.MainSubs.Length; i++)
                 {

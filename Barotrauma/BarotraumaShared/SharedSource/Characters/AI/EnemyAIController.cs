@@ -3133,6 +3133,11 @@ namespace Barotrauma
             }
         }
 
+        public float GetSightRange()
+        {
+            return Sight;
+        }
+
         public void ReevaluateAttacks()
         {
             canAttackWalls = LatchOntoAI != null && LatchOntoAI.AttachToSub;

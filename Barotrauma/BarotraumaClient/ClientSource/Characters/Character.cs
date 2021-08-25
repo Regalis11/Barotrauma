@@ -265,8 +265,11 @@ namespace Barotrauma
                     }
                     else
                     {
-                        //increased visibility range when controlling large a non-humanoid
-                        cam.OffsetAmount = MathHelper.Clamp(Mass, 250.0f, 1500.0f);
+                        // Visibility for monsters depends on character's sightrange but will always be slightly more than humans
+                        if (AIController is EnemyAIController enemyAI) 
+                        { 
+                            cam.OffsetAmount = MathHelper.Clamp(enemyAI.GetSightRange() * 350f, 300.0f, 2000.0f);
+                        }
                     }
                 }
 

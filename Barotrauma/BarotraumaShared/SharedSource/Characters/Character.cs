@@ -2501,7 +2501,19 @@ namespace Barotrauma
                     }
                 }
 #endif
-            }            
+            }
+            if (!IsHuman && IsKeyHit(InputType.PreviousFireMode)) // Make noise
+            {
+#if CLIENT
+                PlaySound(CharacterSound.SoundType.Idle);
+#endif
+            }
+            if (!IsHuman && IsKeyHit(InputType.NextFireMode)) // Make noise, but angry
+            {
+#if CLIENT
+                PlaySound(CharacterSound.SoundType.Attack);
+#endif
+            }
         }
 
         public static void UpdateAnimAll(float deltaTime)
