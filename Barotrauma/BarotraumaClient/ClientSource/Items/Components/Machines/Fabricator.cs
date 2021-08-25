@@ -596,10 +596,17 @@ namespace Barotrauma.Items.Components
             var availableIngredients = GetAvailableIngredients();
             if (character != null)
             {
+                var listBottom = itemList.Rect.Y + itemList.Rect.Height;
                 foreach (GUIComponent child in itemList.Content.Children)
                 {
                     var itemPrefab = child.UserData as FabricationRecipe;
                     if (itemPrefab == null) continue;
+
+                    // Virtualize prefab updates
+                    if (itemPrefab != selectedItem &&
+                        (child.Rect.Y > listBottom ||
+                        child.Rect.Y + child.Rect.Height < itemList.Rect.Y))
+                        continue;
 
                     bool canBeFabricated = CanBeFabricated(itemPrefab, availableIngredients);
                     if (itemPrefab == selectedItem)
