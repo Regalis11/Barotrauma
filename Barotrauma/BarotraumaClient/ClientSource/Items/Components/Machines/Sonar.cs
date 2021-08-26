@@ -446,11 +446,6 @@ namespace Barotrauma.Items.Components
                     zoomSlider.BarScroll += PlayerInput.ScrollWheelSpeed / 1000.0f;
                     zoomSlider.OnMoved(zoomSlider, zoomSlider.BarScroll);
                 }
-
-                if (PlayerInput.KeyHit(InputType.Run))
-                {
-                    SonarModeSwitch.OnClicked(SonarModeSwitch, null);
-                }
             }
 
             float distort = 1.0f - item.Condition / item.MaxCondition;
