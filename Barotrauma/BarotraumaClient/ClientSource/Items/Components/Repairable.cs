@@ -28,6 +28,13 @@ namespace Barotrauma.Items.Components
 
         private FixActions requestStartFixAction;
 
+        private bool QTESuccess;
+
+        private float QTETimer;
+        public float QTETime = 0.5f;
+        private float QTECooldown;
+        public float QTECooldownTime = 0.5f;
+
         public float FakeBrokenTimer;
 
         [Serialize("", false, description: "An optional description of the needed repairs displayed in the repair interface.")]
@@ -120,6 +127,9 @@ namespace Barotrauma.Items.Components
 
             progressBar = new GUIProgressBar(new RectTransform(new Vector2(0.6f, 1.0f), progressBarHolder.RectTransform),
                 color: GUI.Style.Green, barSize: 0.0f, style: "DeviceProgressBar");
+
+            QTETimer = QTETime;
+
             repairButtonText = TextManager.Get("RepairButton");
             repairingText = TextManager.Get("Repairing");
             RepairButton = new GUIButton(new RectTransform(new Vector2(0.4f, 1.0f), progressBarHolder.RectTransform, Anchor.TopCenter), repairButtonText)
@@ -128,6 +138,11 @@ namespace Barotrauma.Items.Components
                 {
                     requestStartFixAction = FixActions.Repair;
                     item.CreateClientEvent(this);
+                    return true;
+                },
+                OnButtonDown = () =>
+                {
+                    QTEAction();
                     return true;
                 }
             };
@@ -145,6 +160,11 @@ namespace Barotrauma.Items.Components
                 {
                     requestStartFixAction = FixActions.Sabotage;
                     item.CreateClientEvent(this);
+                    return true;
+                },
+                OnButtonDown = () =>
+                {
+                    QTEAction();
                     return true;
                 }
             };
@@ -199,6 +219,21 @@ namespace Barotrauma.Items.Components
                 {
                     repairSoundChannel = SoundPlayer.PlaySound("repair", item.WorldPosition, hullGuess: item.CurrentHull);
                 }
+
+                if (QTECooldown > 0.0f)
+                {
+                    QTECooldown -= deltaTime;
+                    if (QTECooldown <= 0.0f)
+                    {
+                        QTETimer = QTETime;
+                    }
+                }
+                else
+                {
+                    QTETimer -= deltaTime * (QTETimer / QTETime);
+                    if (QTETimer < 0.0f) QTETimer = QTETime;
+                
+                }
             }
             else
             {
@@ -213,8 +248,14 @@ namespace Barotrauma.Items.Components
 
             progressBar.BarSize = item.Condition / item.MaxCondition;
             progressBar.Color = ToolBox.GradientLerp(progressBar.BarSize, GUI.Style.Red, GUI.Style.Orange, GUI.Style.Green);
+            progressBar.Parent.Parent.Parent.DrawManually(spriteBatch, true);
 
-            RepairButton.Enabled = (currentFixerAction == FixActions.None || (CurrentFixer == character && currentFixerAction != FixActions.Repair)) && !item.IsFullCondition;
+            Rectangle sliderRect = progressBar.GetSliderRect(1.0f);
+            GUI.DrawRectangle(spriteBatch,
+                    new Rectangle(sliderRect.X + (int)((QTETimer / QTETime) * sliderRect.Width), sliderRect.Y - 5, 2, sliderRect.Height + 10),
+                    QTECooldown <= 0.0f ? Color.White : QTESuccess ? Color.Green : Color.Red * 0.5f, true);
+
+            RepairButton.Enabled = currentFixerAction == FixActions.None || (CurrentFixer == character && !item.IsFullCondition);
             RepairButton.Text = (currentFixerAction == FixActions.None || CurrentFixer != character || currentFixerAction != FixActions.Repair) ? 
                 repairButtonText : 
                 repairingText + new string('.', ((int)(Timing.TotalTime * 2.0f) % 3) + 1);
@@ -273,6 +314,27 @@ namespace Barotrauma.Items.Components
             repairSoundChannel = null;
         }
 
+        private void QTEAction()
+        {
+            if (currentFixerAction == FixActions.Repair)
+            {
+                QTESuccess = QTECooldown <= 0.0f && QTETimer / QTETime <= item.Condition / item.MaxCondition;
+            }
+            else
+            {
+                return;
+            }
+
+            if (!GameMain.IsMultiplayer)RepairBoost(QTESuccess);
+
+            //on failure during cooldown reset cursor to beginning
+            if (!QTESuccess && QTECooldown > 0.0f) QTETimer = QTETime;
+            QTECooldown = QTECooldownTime;
+            //this will be set on button down so we can reset it here
+            requestStartFixAction = FixActions.None;
+            item.CreateClientEvent(this);
+        }
+
         public void ClientRead(ServerNetObject type, IReadMessage msg, float sendingTime)
         {
             deteriorationTimer = msg.ReadSingle();
@@ -281,11 +343,13 @@ namespace Barotrauma.Items.Components
             ushort currentFixerID = msg.ReadUInt16();
             currentFixerAction = (FixActions)msg.ReadRangedInteger(0, 2);
             CurrentFixer = currentFixerID != 0 ? Entity.FindEntityByID(currentFixerID) as Character : null;
+            repairBoost = msg.ReadSingle();
         }
 
         public void ClientWrite(IWriteMessage msg, object[] extraData = null)
         {
             msg.WriteRangedInteger((int)requestStartFixAction, 0, 2);
+            msg.Write(QTESuccess);
         }
     }
 }

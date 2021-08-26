@@ -14,6 +14,7 @@ namespace Barotrauma.Items.Components
         {
             if (c.Character == null) { return; }
             var requestedFixAction = (FixActions)msg.ReadRangedInteger(0, 2);
+            var QTESuccess = msg.ReadBoolean();
             if (requestedFixAction != FixActions.None)
             {
                 if (!c.Character.IsTraitor && requestedFixAction == FixActions.Sabotage)
@@ -31,6 +32,11 @@ namespace Barotrauma.Items.Components
                     item.CreateServerEvent(this);
                 }
             }
+            else
+            {
+                RepairBoost(QTESuccess);
+                item.CreateServerEvent(this);
+            }
         }
 
         public void ServerWrite(IWriteMessage msg, Client c, object[] extraData = null)
@@ -40,6 +46,7 @@ namespace Barotrauma.Items.Components
             msg.Write(DeteriorateAlways);
             msg.Write(CurrentFixer == null ? (ushort)0 : CurrentFixer.ID);
             msg.WriteRangedInteger((int)currentFixerAction, 0, 2);
+            msg.Write(repairBoost);
         }
     }
 }

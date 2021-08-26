@@ -16,6 +16,8 @@ namespace Barotrauma.Items.Components
         private float deteriorationTimer;
         private float deteriorateAlwaysResetTimer;
 
+        private float repairBoost;
+
         bool wasBroken;
         bool wasGoodCondition;
 
@@ -191,7 +193,19 @@ namespace Barotrauma.Items.Components
 
             return ((average + 100.0f) / 2.0f) / 100.0f;
         }
-        
+
+        public void RepairBoost(bool QTESuccess)
+        {
+            if (QTESuccess)
+            {
+                repairBoost = RepairDegreeOfSuccess(CurrentFixer, requiredSkills) * 3 * (currentFixerAction == FixActions.Repair ? 1.0f : -1.0f);
+            }
+            else
+            {
+                repairBoost = (1 - RepairDegreeOfSuccess(CurrentFixer, requiredSkills)) * 10 * (currentFixerAction == FixActions.Repair ? -1.0f : 1.0f);
+            }
+        }
+
         public bool StartRepairing(Character character, FixActions action)
         {
             if (character == null || character.IsDead || action == FixActions.None)
@@ -324,6 +338,12 @@ namespace Barotrauma.Items.Components
             if (item.ConditionPercentage > MinSabotageCondition)
             {
                 wasGoodCondition = true;
+            }
+
+            if (repairBoost != 0.0f)
+            {
+                item.Condition += repairBoost;
+                repairBoost = 0.0f;
             }
 
             float fixDuration = MathHelper.Lerp(FixDurationLowSkill, FixDurationHighSkill, successFactor);
