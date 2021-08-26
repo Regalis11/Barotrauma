@@ -1,4 +1,4 @@
-﻿using Barotrauma.Networking;
+using Barotrauma.Networking;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -40,6 +40,8 @@ namespace Barotrauma.Items.Components
 
         private Queue<float> loadQueue = new Queue<float>();
         private float load;
+
+        private float fuelLeft;
         
         private bool unsentChanges;
         private float sendUpdateTimer;
@@ -356,18 +358,26 @@ namespace Barotrauma.Items.Components
                 loadQueue.Dequeue();
             }
 
+            var containedItems = item.OwnInventory?.AllItems;
+            if (containedItems == null) {fuelLeft = 0.0f;}
+            else
+            {
+                bool fuelcheck = true;
+                foreach (Item item in containedItems)
+                {
+                    if (!item.HasTag("reactorfuel")) { continue; }
+                    if(fissionRate > 0.0f) {item.Condition -= fissionRate / 100.0f * fuelConsumptionRate * deltaTime;}
+                    if(fuelcheck) 
+                    {
+                        fuelLeft = 100.0f;
+                        fuelcheck = false;
+                    }
+                    if(item.Condition < fuelLeft){fuelLeft = item.Condition;}
+                }
+            }
+
             if (fissionRate > 0.0f)
             {
-                var containedItems = item.OwnInventory?.AllItems;
-                if (containedItems != null)
-                {
-                    foreach (Item item in containedItems)
-                    {
-                        if (!item.HasTag("reactorfuel")) { continue; }
-                        item.Condition -= fissionRate / 100.0f * fuelConsumptionRate * deltaTime;
-                    }
-                }
-
                 if (item.CurrentHull != null)
                 {
                     var aiTarget = item.CurrentHull.AiTarget;
@@ -386,11 +396,12 @@ namespace Barotrauma.Items.Components
                     aiTarget.SoundRange = MathHelper.Lerp(aiTarget.MinSoundRange, aiTarget.MaxSoundRange, range);
                 }
             }
-
+            
             item.SendSignal(((int)(temperature * 100.0f)).ToString(), "temperature_out");
             item.SendSignal(((int)-CurrPowerConsumption).ToString(), "power_value_out");
             item.SendSignal(((int)load).ToString(), "load_value_out");
             item.SendSignal(((int)AvailableFuel).ToString(), "fuel_out");
+            item.SendSignal(((int)fuelLeft).ToString(), "fuel_left");
 
             UpdateFailures(deltaTime);
 #if CLIENT
