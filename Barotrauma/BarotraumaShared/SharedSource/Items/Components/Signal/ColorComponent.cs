@@ -36,9 +36,9 @@ namespace Barotrauma.Items.Components
             if (UseHSV)
             {
                 Color hsvColor = ToolBox.HSVToRGB(signalR, signalG, signalB);
-                signalR = hsvColor.R / (float) byte.MaxValue;
-                signalG = hsvColor.G / (float) byte.MaxValue;
-                signalB = hsvColor.B / (float) byte.MaxValue;
+                signalR = hsvColor.R;
+                signalG = hsvColor.G;
+                signalB = hsvColor.B;
             }
 
             output = signalR.ToString("G", CultureInfo.InvariantCulture);
