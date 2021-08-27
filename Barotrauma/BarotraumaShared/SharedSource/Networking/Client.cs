@@ -26,6 +26,7 @@ namespace Barotrauma.Networking
         public CharacterTeamType PreferredTeam;
 
         private Character character;
+        public Character Deadcharacter;
         public Character Character
         {
             get
@@ -79,6 +80,7 @@ namespace Barotrauma.Networking
             {
                 if (character == null || character.IsDead)
                 {
+                    Deadcharacter = character;
                     return spectate_position;
                 }
                 else
