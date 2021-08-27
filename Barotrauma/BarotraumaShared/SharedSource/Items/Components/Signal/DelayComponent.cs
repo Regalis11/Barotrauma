@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
-
+using Microsoft.Xna.Framework;
 namespace Barotrauma.Items.Components
 {
     class DelayComponent : ItemComponent
@@ -113,6 +113,19 @@ namespace Barotrauma.Items.Components
                         SendDuration = 1
                     };
                     signalQueue.Enqueue(prevQueuedSignal);
+                    break;
+                case "set_delay":
+                    float val;
+                    if (float.TryParse(signal.value, out val))
+                    {
+						float clampval = MathHelper.Clamp(val, 0, 60);
+                        if (signalQueue.Count > 0 && clampval != Delay)
+                        {
+                            prevQueuedSignal = null; //might not be the best but hey it works???
+                            signalQueue.Clear();
+                        }
+                        Delay = clampval;
+                    }
                     break;
             }
         }
