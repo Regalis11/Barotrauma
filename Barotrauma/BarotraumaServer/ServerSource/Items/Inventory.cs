@@ -33,7 +33,7 @@ namespace Barotrauma
                 {
                     accessible = false;
                 }
-                else if (!characterInventory.AccessibleWhenAlive && !ownerCharacter.IsDead)
+                else if (!characterInventory.AccessibleWhenAlive && !ownerCharacter.IsDead && !characterInventory.AccessibleByOwner)
                 {
                     accessible = false;
                 }

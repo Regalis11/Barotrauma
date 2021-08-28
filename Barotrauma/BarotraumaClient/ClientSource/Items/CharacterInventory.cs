@@ -482,7 +482,7 @@ namespace Barotrauma
 
         public override void Update(float deltaTime, Camera cam, bool isSubInventory = false)
         {
-            if (!AccessibleWhenAlive && !character.IsDead)
+            if (!AccessibleWhenAlive && !character.IsDead && !AccessibleByOwner)
             {
                 syncItemsDelay = Math.Max(syncItemsDelay - deltaTime, 0.0f);
                 return;
@@ -1110,7 +1110,7 @@ namespace Barotrauma
         
         public void DrawOwn(SpriteBatch spriteBatch)
         {
-            if (!AccessibleWhenAlive && !character.IsDead) { return; }
+            if (!AccessibleWhenAlive && !character.IsDead && !AccessibleByOwner) { return; }
             if (capacity == 0) { return; }
             if (visualSlots == null) { CreateSlots(); }
             if (GameMain.GraphicsWidth != screenResolution.X ||

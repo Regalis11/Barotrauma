@@ -33,6 +33,12 @@ namespace Barotrauma
             private set;
         }
 
+        public bool AccessibleByOwner
+        {
+            get;
+            private set;
+        }
+
         private static string[] ParseSlotTypes(XElement element)
         {
             string slotString = element.GetAttributeString("slots", null);
@@ -47,6 +53,7 @@ namespace Barotrauma
             SlotTypes = new InvSlotType[capacity];
 
             AccessibleWhenAlive = element.GetAttributeBool("accessiblewhenalive", true);
+            AccessibleByOwner = element.GetAttributeBool("accessiblebyowner", false);
 
             string[] slotTypeNames = ParseSlotTypes(element);
             System.Diagnostics.Debug.Assert(slotTypeNames.Length == capacity);
