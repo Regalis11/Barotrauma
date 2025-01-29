@@ -1380,7 +1380,7 @@ namespace Barotrauma
             }
             var selectedSound = matchingSounds.GetRandomUnsynced();
             if (selectedSound?.Sound == null) { return; }
-            soundChannel = SoundPlayer.PlaySound(selectedSound.Sound, AnimController.WorldPosition, selectedSound.Volume, selectedSound.Range, hullGuess: CurrentHull, ignoreMuffling: selectedSound.IgnoreMuffling);
+            soundChannel = SoundPlayer.PlaySound(selectedSound.Sound, AnimController.WorldPosition, selectedSound.Volume, selectedSound.Range, hullGuess: CurrentHull, ignoreMuffling: selectedSound.IgnoreMuffling, freqMult: selectedSound.GetRandomFrequencyMultiplier());
             soundTimer = Params.SoundInterval;
         }
 

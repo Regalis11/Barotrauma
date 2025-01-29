@@ -276,7 +276,7 @@ namespace Barotrauma.Sounds
             {
                 if (value is < MinFrequencyMultiplier or > MaxFrequencyMultiplier)
                 {
-                    DebugConsole.ThrowError($"Frequency multiplier out of range: {value}" + Environment.StackTrace.CleanupStackTrace());
+                    DebugConsole.ThrowError($"Frequency multiplier out of range: {value} . Minimum acceptable frequency value is {MinFrequencyMultiplier} , maximum acceptable frequency value is {MaxFrequencyMultiplier} ." + Environment.StackTrace.CleanupStackTrace());
                 }
                 frequencyMultiplier = Math.Clamp(value, MinFrequencyMultiplier, MaxFrequencyMultiplier);
 
