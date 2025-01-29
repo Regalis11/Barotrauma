@@ -1,0 +1,6 @@
+<Text language="English">
+  <SubEditor.TransformWidget.Rotation>Rotation: [value]°</SubEditor.TransformWidget.Rotation>
+  <SubEditor.TransformWidget.Scale>Scale: ×[value]</SubEditor.TransformWidget.Scale>
+  <SubEditor.RotateToggleToolTip>Edit Rotation</SubEditor.RotateToggleToolTip>
+  <SubEditor.ScaleToggleToolTip>Edit Scaling</SubEditor.ScaleToggleToolTip>
+</Text>

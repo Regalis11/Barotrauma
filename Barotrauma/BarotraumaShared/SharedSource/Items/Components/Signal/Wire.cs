@@ -546,9 +546,9 @@ namespace Barotrauma.Items.Components
             return new List<Vector2>(nodes);
         }
 
-        public void SetNodes(List<Vector2> nodes)
+        public void SetNodes(IEnumerable<Vector2> nodes)
         {
-            this.nodes = new List<Vector2>(nodes);
+            this.nodes = nodes.ToList();
             UpdateSections();
         }
 

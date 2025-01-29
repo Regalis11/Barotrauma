@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
@@ -23,6 +24,8 @@ namespace Barotrauma
         public const int MaxLights = 600;
         public const int MaxShadowCastingLights = 100;
 
+        private const float TransformToolWidgetOffset = 300f;
+
         private static Submarine MainSub
         {
             get => Submarine.MainSub;
@@ -35,6 +38,147 @@ namespace Barotrauma
         {
             Default,
             Wiring
+        }
+        
+        private GUITickBox RotateToolToggle, ScaleToolToggle;
+        
+        private static Vector2 SelectionCenter
+        {
+            get
+            {
+                IEnumerable<MapEntity> nonWireEntities = MapEntity.FilteredSelectedList.Where(entity => (entity as Item)?.GetComponent<Wire>() == null);
+                return nonWireEntities.Any()
+                    ? Vector2.Lerp((nonWireEntities.Min(entity => entity.DrawPosition.X), nonWireEntities.Min(entity => entity.DrawPosition.Y)), (nonWireEntities.Max(entity => entity.DrawPosition.X), nonWireEntities.Max(entity => entity.DrawPosition.Y)), 0.5f)
+                    : Vector2.Zero;
+            }
+        }
+
+        private Vector2 oldSelectionCenter;
+
+        private record struct TransformData(float scale, float rotation, Vector2 pos, Rectangle rect, Vector2? texOffset, Dictionary<Wire, (List<Vector2> nodes, float width)> wires, Dictionary<ItemLabel, float> textScales, Dictionary<LightComponent, float> lightRanges);
+        private Dictionary<MapEntity, TransformData> oldTransformData;
+        
+        private Widget transformWidget;
+        private Widget TransformWidget
+        {
+            get
+            {
+                if (transformWidget != null) { return transformWidget; }
+
+                int size = GUI.IntScale(16f);
+                transformWidget = new Widget("scale", size, WidgetShape.Rectangle)
+                {
+                    Enabled = false,
+                    Color = GUIStyle.Yellow,
+                    InputAreaMargin = 20,
+                    RequireMouseOn = false,
+                    TooltipOffset = (size / 2f, -size / 2f)
+                };
+                transformWidget.Selected += () =>
+                {
+                    transformWidget.Color = GUIStyle.Green;
+                    
+                    oldTransformData = MapEntity.SelectedList.ToDictionary(entity => entity, entity =>
+                    {
+                        Item item = entity as Item;
+                        Structure structure = entity as Structure;
+                        
+                        float rotation = entity switch
+                        {
+                            Structure => MathHelper.ToRadians(structure.Rotation),
+                            Item => item.RotationRad,
+                            _ => 0f
+                        };
+                        return new TransformData(entity.Scale, rotation, entity.DrawPosition, entity.Rect, structure?.TextureOffset,
+                                                 item?.GetComponents<Wire>().ToDictionary(wire => wire, wire => (wire.GetNodes(), wire.Width)),
+                                                 item?.GetComponents<ItemLabel>().ToDictionary(label => label, label => label.TextScale),
+                                                item?.GetComponents<LightComponent>().ToDictionary(light => light, light => light.Range));
+                    });
+                    
+                    oldSelectionCenter = SelectionCenter;
+                };
+                transformWidget.PreUpdate += _ =>
+                {
+                    transformWidget.Enabled = MapEntity.FilteredSelectedList.Any() && (RotateToolToggle.Selected || ScaleToolToggle.Selected);
+                    if (!PlayerInput.PrimaryMouseButtonHeld())
+                    {
+                        Widget.SelectedWidgets.Remove(transformWidget);
+                        transformWidget.Color = Color.Yellow;
+                    }
+                };
+                transformWidget.MouseHeld += _ =>
+                {
+                    MapEntity.DisableSelect = true;
+
+                    if (MathUtils.NearlyEqual(PlayerInput.MousePosition, transformWidget.DrawPos)) { return; }
+
+                    float rotationAngleRad = 0f;
+                    LocalizedString rotationString = null;
+                    if (RotateToolToggle.Selected)
+                    {
+                        rotationAngleRad = MathUtils.VectorToAngle(PlayerInput.MousePosition - Cam.WorldToScreen(oldSelectionCenter));
+                        rotationString = TextManager.GetWithVariable("SubEditor.TransformWidget.Rotation", "[value]", MathHelper.ToDegrees(rotationAngleRad).ToString("0.000", CultureInfo.CurrentCulture));
+                    }
+
+                    float scaleMult = 1f;
+                    LocalizedString scaleString = null;
+                    if (ScaleToolToggle.Selected)
+                    {
+                        scaleMult = Vector2.Distance(PlayerInput.MousePosition, Cam.WorldToScreen(oldSelectionCenter)) / (TransformToolWidgetOffset * GUI.Scale);
+                        scaleString = TextManager.GetWithVariable("SubEditor.TransformWidget.Scale", "[value]", scaleMult.ToString("0.000", CultureInfo.CurrentCulture));
+                    }
+
+                    transformWidget.Tooltip = LocalizedString.Join("\n", new[] { rotationString, scaleString }.Where(str => !str.IsNullOrEmpty()));
+
+                    Vector2 selectionWirePos = oldSelectionCenter - MainSub.HiddenSubPosition;
+
+                    foreach (MapEntity entity in MapEntity.SelectedList)
+                    {
+                        TransformData oldData = oldTransformData[entity];
+
+                        if (RotateToolToggle.Selected && entity is Item { Prefab.AllowRotatingInEditor: true } or Structure { Prefab.AllowRotatingInEditor: true })
+                        {
+                            float newRotation = MathHelper.ToDegrees(MathHelper.WrapAngle(oldData.rotation + (entity is Structure && entity.FlippedX ^ entity.FlippedY ? -rotationAngleRad : rotationAngleRad)));
+                            switch (entity)
+                            {
+                                case Item item:
+                                    item.Rotation = newRotation;
+                                    break;
+                                case Structure structure:
+                                    structure.Rotation = newRotation;
+                                    break;
+                            }
+                        }
+
+                        if (ScaleToolToggle.Selected)
+                        {
+                            entity.Scale = oldData.scale * scaleMult;
+                            if (entity.ResizeVertical || entity.ResizeHorizontal)
+                            {
+                                if (entity.ResizeVertical)
+                                {
+                                    entity.RectHeight = (int)(oldData.rect.Height * scaleMult);
+                                }
+                                if (entity.ResizeHorizontal)
+                                {
+                                    entity.RectWidth = (int)(oldData.rect.Width * scaleMult);
+                                }
+                                if (entity is Structure structure && oldData.texOffset.HasValue)
+                                {
+                                    structure.TextureOffset = oldData.texOffset.Value * scaleMult;
+                                }
+                            }
+                            oldData.textScales?.ForEach(pair => pair.Key.TextScale = pair.Value * scaleMult);
+                            oldData.lightRanges?.ForEach(pair => pair.Key.Range = pair.Value * scaleMult);
+                            oldData.wires?.ForEach(pair => pair.Key.Width = pair.Value.width * scaleMult);
+                        }
+
+                        entity.Move(MathUtils.RotatePointAroundTarget(oldSelectionCenter + (oldData.pos - oldSelectionCenter) * scaleMult, oldSelectionCenter, -rotationAngleRad) - entity.DrawPosition);
+                        oldData.wires?.ForEach(pair => pair.Key.SetNodes(pair.Value.nodes.Select(nodePos => MathUtils.RotatePointAroundTarget(selectionWirePos + (nodePos - selectionWirePos) * scaleMult, selectionWirePos, -rotationAngleRad))));
+                    }
+                };
+                return transformWidget;
+            }
         }
 
         public enum WarningType
@@ -530,6 +674,16 @@ namespace Barotrauma
             };
 
             spacing = new GUIFrame(new RectTransform(new Vector2(0.02f, 1.0f), paddedTopPanel.RectTransform), style: null);
+            new GUIFrame(new RectTransform(new Vector2(0.1f, 0.9f), spacing.RectTransform, Anchor.Center), style: "VerticalLine");
+
+            RotateToolToggle = new GUITickBox(new RectTransform(new Vector2(0.9f, 0.9f), paddedTopPanel.RectTransform, scaleBasis: ScaleBasis.BothHeight), "", style: "SubEditorRotateToggle")
+            {
+                ToolTip = TextManager.Get("SubEditor.RotateToggleToolTip")
+            };
+            ScaleToolToggle = new GUITickBox(new RectTransform(new Vector2(0.9f, 0.9f), paddedTopPanel.RectTransform, scaleBasis: ScaleBasis.BothHeight), "", style: "SubEditorScaleToggle")
+            {
+                ToolTip = TextManager.Get("SubEditor.ScaleToggleToolTip")
+            };
 
             var selectedLayerText = new GUITextBlock(new RectTransform(new Vector2(0.15f, 1.0f), paddedTopPanel.RectTransform),
                 string.Empty, textAlignment: Alignment.Center);
@@ -1448,6 +1602,8 @@ namespace Barotrauma
 
             GUI.ForceMouseOn(null);
             SetMode(Mode.Default);
+            RotateToolToggle.Selected = false;
+            ScaleToolToggle.Selected = false;
 
             if (backedUpSubInfo != null)
             {
@@ -1658,6 +1814,9 @@ namespace Barotrauma
             });
 
             ClearFilter();
+
+            Widget.SelectedWidgets.Remove(TransformWidget);
+            TransformWidget.Color = Color.Yellow;
         }
 
         private void CreateDummyCharacter()
@@ -6192,6 +6351,8 @@ namespace Barotrauma
 
                 CharacterHUD.Update((float)deltaTime, dummyCharacter, cam);
             }
+
+            TransformWidget.Update((float)deltaTime);
         }
 
         /// <summary>
@@ -6320,6 +6481,22 @@ namespace Barotrauma
                 wiringToolPanel.DrawManually(spriteBatch);                
             }
             MapEntity.DrawEditor(spriteBatch, cam);
+
+            if (TransformWidget.Enabled)
+            {
+                if (TransformWidget.IsSelected && ScaleToolToggle.Selected)
+                {
+                    TransformWidget.DrawPos = PlayerInput.MousePosition;
+                }
+                else
+                {
+                    Vector2 dir = TransformWidget.IsSelected ? Vector2.Normalize(PlayerInput.MousePosition - Cam.WorldToScreen(SelectionCenter)) : Vector2.UnitX;
+                    TransformWidget.DrawPos = Cam.WorldToScreen(SelectionCenter) + dir * TransformToolWidgetOffset * GUI.Scale;
+                }
+                
+                GUI.DrawLine(spriteBatch, Cam.WorldToScreen(TransformWidget.IsSelected ? oldSelectionCenter : SelectionCenter), TransformWidget.DrawPos, GUIStyle.Green, width: 3f);
+                TransformWidget.Draw(spriteBatch, (float)deltaTime);
+            }
 
             GUI.Draw(Cam, spriteBatch);
 

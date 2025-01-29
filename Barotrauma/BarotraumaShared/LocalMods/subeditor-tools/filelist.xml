@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<contentpackage name="subeditor-tools" corepackage="False" modversion="1.0.0" gameversion="1.7.7.0">
+  <Text file="%ModDir%/Locale/English.xml" />
+  <UIStyle file="%ModDir%/Style.xml" />
+</contentpackage>

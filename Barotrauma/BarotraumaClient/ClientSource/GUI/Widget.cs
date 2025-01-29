@@ -114,7 +114,6 @@ namespace Barotrauma
             if (!enabled) { return; }
             if (IsMouseOver || (!RequireMouseOn && SelectedWidgets.Contains(this) && PlayerInput.PrimaryMouseButtonHeld()))
             {
-                Hovered?.Invoke();
                 if (RequireMouseOn || PlayerInput.PrimaryMouseButtonDown())
                 {
                     if ((multiselect && !SelectedWidgets.Contains(this)) || SelectedWidgets.None())

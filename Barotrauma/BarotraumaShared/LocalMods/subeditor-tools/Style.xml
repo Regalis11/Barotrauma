@@ -1,0 +1,18 @@
+<Style>
+  <SubEditorRotateToggle color="255,255,255,255" hovercolor="255,255,255,255" selectedcolor="255,255,255,255" disabledcolor="125,125,125,125">
+    <Sprite name="GUITickBoxFreeScale.None" texture="Content/UI/UIAtlasGeneral.png" state="None" sourcerect="6,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.Pressed" texture="Content/UI/UIAtlasGeneral.png" state="Pressed" sourcerect="109,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.Hover" texture="Content/UI/UIAtlasGeneral.png" state="Hover" sourcerect="160,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.Selected" texture="Content/UI/UIAtlasGeneral.png" state="Selected" sourcerect="57,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.HoverSelected" texture="Content/UI/UIAtlasGeneral.png" state="HoverSelected" sourcerect="211,112,36,36" tile="false" maintainaspectratio="true"/>
+    <GUITextBlock textcolor="228,217,167,255" hovertextcolor="255,255,255,255" disabledtextcolor="125,125,125,125" selectedcolor="255,153,0,76" padding="10,0,10,0"/>
+  </SubEditorRotateToggle>
+  <SubEditorScaleToggle color="255,255,255,255" hovercolor="255,255,255,255" selectedcolor="255,255,255,255" disabledcolor="125,125,125,125">
+    <Sprite name="GUITickBoxFreeScale.None" texture="Content/UI/UIAtlasGeneral.png" state="None" sourcerect="6,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.Pressed" texture="Content/UI/UIAtlasGeneral.png" state="Pressed" sourcerect="109,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.Hover" texture="Content/UI/UIAtlasGeneral.png" state="Hover" sourcerect="160,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.Selected" texture="Content/UI/UIAtlasGeneral.png" state="Selected" sourcerect="57,112,36,36" tile="false" maintainaspectratio="true"/>
+    <Sprite name="GUITickBoxFreeScale.HoverSelected" texture="Content/UI/UIAtlasGeneral.png" state="HoverSelected" sourcerect="211,112,36,36" tile="false" maintainaspectratio="true"/>
+    <GUITextBlock textcolor="228,217,167,255" hovertextcolor="255,255,255,255" disabledtextcolor="125,125,125,125" selectedcolor="255,153,0,76" padding="10,0,10,0"/>
+  </SubEditorScaleToggle>
+</Style>
