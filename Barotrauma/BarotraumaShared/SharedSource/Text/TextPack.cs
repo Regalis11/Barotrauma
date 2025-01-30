@@ -48,11 +48,17 @@ namespace Barotrauma
 
         public readonly LanguageIdentifier Language;
 
+        public readonly record struct Text(List<XNode> Content, bool IsOverride, TextPack TextPack)
+        {
+            public string String => Content.Aggregate("", (current, subNode) => current + RetrieveSubValue(subNode));
 
-        public readonly record struct Text(
-            string String,
-            bool IsOverride,
-            TextPack TextPack);
+            private static string RetrieveSubValue(XNode subNode) => subNode switch
+            {
+                XText text => text.Value,
+                XElement element => TextManager.GetWithVariables(element.Name.ToString(), element.Attributes().Select(attr => ($"[{attr.Name}]", attr.Value)).ToArray()).Value,
+                _ => ""
+            };
+        }
 
         public readonly ImmutableDictionary<Identifier, ImmutableArray<Text>> Texts;
         public readonly string TranslatedName;
@@ -90,15 +96,14 @@ namespace Barotrauma
                     {
                         if (!texts.ContainsKey(elemName)) { texts.Add(elemName, new List<Text>()); }
 
-                        string str = element.ElementInnerText()
-                            .Replace(@"\n", "\n")
-                            .Replace("&amp;", "&")
-                            .Replace("&lt;", "<")
-                            .Replace("&gt;", ">")
-                            .Replace("&quot;", "\"")
-                            .Replace("&apos;", "'");
+                        List<XNode> content = new();
+                        foreach (XNode node in element.Nodes())
+                        {
+                            if (node is XText textNode) { textNode.Value = textNode.Value.Replace(@"\n", "\n"); }
+                            content.Add(node);
+                        }
 
-                        texts[elemName].Add(new Text(str, isOverride, this));
+                        texts[elemName].Add(new Text(content, isOverride, this));
                     }
                 }
             }
