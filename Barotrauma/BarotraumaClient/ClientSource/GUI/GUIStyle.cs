@@ -3,44 +3,16 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 
 namespace Barotrauma
 {
-    public static class GUIStyle
+    public static partial class GUIStyle
     {
-        public readonly static ImmutableDictionary<Identifier, GUIFont> Fonts;
         public readonly static ImmutableDictionary<Identifier, GUISprite> Sprites;
         public readonly static ImmutableDictionary<Identifier, GUISpriteSheet> SpriteSheets;
         public readonly static ImmutableDictionary<Identifier, GUIColor> Colors;
-        static GUIStyle()
-        {
-            var guiClassProperties = typeof(GUIStyle).GetFields(BindingFlags.Public | BindingFlags.Static);
-
-            ImmutableDictionary<Identifier, T> getPropertiesOfType<T>() where T : class
-            {
-                return guiClassProperties
-                    .Where(p => p.FieldType == typeof(T))
-                    .Select(p => (p.Name.ToIdentifier(), p.GetValue(null) as T))
-                    .ToImmutableDictionary();
-            }
-
-            Fonts = getPropertiesOfType<GUIFont>();
-            Sprites = getPropertiesOfType<GUISprite>();
-            SpriteSheets = getPropertiesOfType<GUISpriteSheet>();
-            Colors = getPropertiesOfType<GUIColor>();
-        }
 
         public readonly static PrefabCollection<GUIComponentStyle> ComponentStyles = new PrefabCollection<GUIComponentStyle>();
-
-        public readonly static GUIFont Font = new GUIFont("Font");
-        public readonly static GUIFont UnscaledSmallFont = new GUIFont("UnscaledSmallFont");
-        public readonly static GUIFont SmallFont = new GUIFont("SmallFont");
-        public readonly static GUIFont LargeFont = new GUIFont("LargeFont");
-        public readonly static GUIFont SubHeadingFont = new GUIFont("SubHeadingFont");
-        public readonly static GUIFont DigitalFont = new GUIFont("DigitalFont");
-        public readonly static GUIFont HotkeyFont = new GUIFont("HotkeyFont");
-        public readonly static GUIFont MonospacedFont = new GUIFont("MonospacedFont");
 
         public readonly static GUICursor CursorSprite = new GUICursor("Cursor");
 

@@ -11,41 +11,6 @@ namespace Barotrauma.Items.Components
         private string lastSentText;
         private float sendStateTimer;
 
-        [Serialize("", IsPropertySaveable.Yes, description: "The text to display on the label.", alwaysUseInstanceValues: true), Editable(MaxLength = 100)]
-        public string Text
-        {
-            get;
-            set;
-        }
-
-        [Editable, Serialize(false, IsPropertySaveable.Yes)]
-        public bool IgnoreLocalization
-        {
-            get;
-            set;
-        }
-
-        [Editable, Serialize("0,0,0,255", IsPropertySaveable.Yes, description: "The color of the text displayed on the label.", alwaysUseInstanceValues: true)]
-        public Color TextColor
-        {
-            get;
-            set;
-        }
-        
-        [Editable, Serialize(1.0f, IsPropertySaveable.Yes, description: "The scale of the text displayed on the label.", alwaysUseInstanceValues: true)]
-        public float TextScale
-        {
-            get;
-            set;
-        }
-
-        [Serialize("0,0,0,0", IsPropertySaveable.Yes, description: "The amount of padding around the text in pixels (left,top,right,bottom).")]
-        public Vector4 Padding
-        {
-            get;
-            set;
-        }
-
         public override void Move(Vector2 amount, bool ignoreContacts = false)
         {
             //do nothing

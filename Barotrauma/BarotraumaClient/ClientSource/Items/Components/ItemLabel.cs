@@ -13,8 +13,6 @@ namespace Barotrauma.Items.Components
     {
         private GUITextBlock textBlock;
 
-        private Color textColor;
-
         private float scrollAmount;
         private string scrollingText;
         private float scrollPadding;
@@ -27,85 +25,10 @@ namespace Barotrauma.Items.Components
         private Rectangle prevRect;
         private StringBuilder sb;
 
-        private Vector4 padding;
-
-        [Serialize("0,0,0,0", IsPropertySaveable.Yes, description: "The amount of padding around the text in pixels (left,top,right,bottom).")]
-        public Vector4 Padding
-        {
-            get { return padding; }
-            set 
-            {
-                padding = value;
-                TextBlock.Padding = value * item.Scale; 
-            }
-        }
-
-        private string text;
-        [Serialize("", IsPropertySaveable.Yes, translationTextTag: "Label.", description: "The text displayed in the label.", alwaysUseInstanceValues: true), Editable(MaxLength = 100)]
-        public string Text
-        {
-            get { return text; }
-            set
-            {
-                if (value == text || item.Rect.Width < 5) { return; }
-
-                if (TextBlock.Rect.Width != item.Rect.Width || textBlock.Rect.Height != item.Rect.Height)
-                {
-                    textBlock = null;
-                }
-
-                text = value;
-                SetDisplayText(value); 
-                UpdateScrollingText();
-            }
-        }
-
-        private bool ignoreLocalization;
-
-        [Editable, Serialize(false, IsPropertySaveable.Yes, "Whether or not to skip localization and always display the raw value.")]
-        public bool IgnoreLocalization
-        {
-            get => ignoreLocalization;
-            set
-            {
-                ignoreLocalization = value;
-                SetDisplayText(Text);
-            }
-        }
-
         public LocalizedString DisplayText
         {
             get;
             private set;
-        }
-
-        [Editable, Serialize("0,0,0,255", IsPropertySaveable.Yes, description: "The color of the text displayed on the label (R,G,B,A).", alwaysUseInstanceValues: true)]
-        public Color TextColor
-        {
-            get { return textColor; }
-            set
-            {
-                if (textBlock != null) { textBlock.TextColor = value; }
-                textColor = value;
-            }
-        }
-
-        [Editable(0.0f, 10.0f), Serialize(1.0f, IsPropertySaveable.Yes, description: "The scale of the text displayed on the label.", alwaysUseInstanceValues: true)]
-        public float TextScale
-        {
-            get { return textBlock == null ? 1.0f : textBlock.TextScale / BaseToRealTextScaleFactor; }
-            set
-            {
-                if (textBlock != null) 
-                {
-                    float prevScale = TextBlock.TextScale;
-                    textBlock.TextScale = MathHelper.Clamp(value * BaseToRealTextScaleFactor, 0.1f, 10.0f); 
-                    if (!MathUtils.NearlyEqual(prevScale, TextBlock.TextScale))
-                    {
-                        SetScrollingText();
-                    }
-                }
-            }
         }
 
         private bool scrollable;
@@ -118,7 +41,6 @@ namespace Barotrauma.Items.Components
                 scrollable = value;
                 IsActive = value || parseSpecialTextTagOnStart;
                 TextBlock.Wrap = !scrollable;
-                TextBlock.TextAlignment = scrollable ? Alignment.CenterLeft : Alignment.Center;
             }
         }
 
@@ -164,12 +86,14 @@ namespace Barotrauma.Items.Components
                 needsScrolling = true;
                 float spaceWidth = textBlock.Font.MeasureChar(' ').X * TextBlock.TextScale;
                 scrollingText = new string(' ', (int)Math.Ceiling(textAreaWidth / spaceWidth)) + DisplayText.Value;
+                TextBlock.TextAlignment = Alignment.CenterLeft;
             }
             else
             {
                 //whole text can fit in the textblock, no need to scroll
                 needsScrolling = false;
                 TextBlock.Text = scrollingText = DisplayText.Value;
+                TextBlock.TextAlignment = alignment;
                 scrollPadding = 0;
                 scrollAmount = 0.0f;
                 scrollIndex = 0;
@@ -215,7 +139,7 @@ namespace Barotrauma.Items.Components
         private void RecreateTextBlock()
         {
             textBlock = new GUITextBlock(new RectTransform(item.Rect.Size), "",
-                textColor: textColor, font: GUIStyle.UnscaledSmallFont, textAlignment: scrollable ? Alignment.CenterLeft : Alignment.Center, wrap: !scrollable, style: null)
+                textColor: textColor, font: font, textAlignment: needsScrolling ? Alignment.CenterLeft : alignment, wrap: !scrollable, style: null)
             {
                 TextDepth = item.SpriteDepth - 0.00001f,
                 RoundToNearestPixel = false,

@@ -41,18 +41,12 @@ namespace Barotrauma
         }
     }
 
-    public abstract class GUISelector<T> where T : GUIPrefab
+    public abstract partial class GUISelector<T> where T : GUIPrefab
     {
         public readonly PrefabSelector<T> Prefabs = new PrefabSelector<T>();
-        public readonly Identifier Identifier;
-
-        public GUISelector(string identifier)
-        {
-            Identifier = identifier.ToIdentifier();
-        }
     }
 
-    public class GUIFontPrefab : GUIPrefab
+    public partial class GUIFontPrefab : GUIPrefab
     {
         private readonly ContentXElement element;
         private ScalableFont? font;
@@ -227,10 +221,8 @@ namespace Barotrauma
         }
     }
 
-    public class GUIFont : GUISelector<GUIFontPrefab>
+    public partial class GUIFont : GUISelector<GUIFontPrefab>
     {
-        public GUIFont(string identifier) : base(identifier) { }
-
         public bool HasValue => Value is not null;
 
         public ScalableFont? Value => Prefabs.ActivePrefab?.Font;

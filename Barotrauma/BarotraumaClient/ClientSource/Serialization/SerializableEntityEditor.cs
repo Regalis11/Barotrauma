@@ -30,7 +30,7 @@ namespace Barotrauma
         public bool Readonly
         {
             get => isReadonly;
-            set 
+            set
             {
                 foreach (var component in Fields.SelectMany(f => f.Value))
                 {
@@ -317,8 +317,8 @@ namespace Barotrauma
         }
 
         public SerializableEntityEditor(RectTransform parent, ISerializableEntity entity, bool inGame, bool showName, string style = "", int elementHeight = 24, GUIFont titleFont = null)
-            : this(parent, entity, inGame ? 
-                SerializableProperty.GetProperties<InGameEditable>(entity).Union(SerializableProperty.GetProperties<ConditionallyEditable>(entity).Where(p => p.GetAttribute<ConditionallyEditable>()?.IsEditable(entity) ?? false)) 
+            : this(parent, entity, inGame ?
+                SerializableProperty.GetProperties<InGameEditable>(entity).Union(SerializableProperty.GetProperties<ConditionallyEditable>(entity).Where(p => p.GetAttribute<ConditionallyEditable>()?.IsEditable(entity) ?? false))
                 : SerializableProperty.GetProperties<Editable>(entity).Where(p => p.GetAttribute<ConditionallyEditable>()?.IsEditable(entity) ?? true), showName, style, elementHeight, titleFont)
         {
         }
@@ -344,10 +344,10 @@ namespace Barotrauma
                 };
             }
 
-            List<Header> headers = new List<Header>() 
+            List<Header> headers = new List<Header>()
             { 
                 //"no header" comes first = properties under no header are listed first
-                null 
+                null
             };
             //check which header each property is under
             Dictionary<SerializableProperty, Header> propertyHeaders = new Dictionary<SerializableProperty, Header>();
@@ -360,11 +360,11 @@ namespace Barotrauma
                     prevHeader = header;
                     //Attribute.Equals is based on the equality of the fields,
                     //so in practice we treat identical headers split into different files/classes as the same header
-                    if (!headers.Contains(header)) 
-                    { 
+                    if (!headers.Contains(header))
+                    {
                         //collect headers into a list in the order they're encountered in
                         //(to keep them in the same order as they're defined in the code, as the dictionary is not in any particular order)                        
-                        headers.Add(header); 
+                        headers.Add(header);
                     }
                 }
                 propertyHeaders[property] = prevHeader;
@@ -430,9 +430,9 @@ namespace Barotrauma
                     displayName = TextManager.Get(fallbackTag, $"sp.{fallbackTag}.name".ToIdentifier());
                 }
             }
-            
+
             if (displayName.IsNullOrEmpty())
-            {   
+            {
                 displayName = property.Name.FormatCamelCaseWithSpaces();
 #if DEBUG
                 InGameEditable editable = property.GetAttribute<InGameEditable>();
@@ -523,58 +523,62 @@ namespace Barotrauma
             {
                 propertyField = CreateStringField(entity, property, value.ToString(), displayName, toolTip);
             }
+            else if (value is GUIFont font)
+            {
+                propertyField = CreateFontField(entity, property, font, displayName, toolTip);
+            }
             return propertyField;
         }
 
         public GUIComponent CreateBoolField(ISerializableEntity entity, SerializableProperty property, bool value, LocalizedString displayName, LocalizedString toolTip)
-        {
-            var editableAttribute = property.GetAttribute<Editable>();
-            if (editableAttribute.ReadOnly)
             {
-                var frame = new GUIFrame(new RectTransform(new Point(Rect.Width, Math.Max(elementHeight, 26)), layoutGroup.RectTransform, isFixedSize: true), color: Color.Transparent);
-                var label = new GUITextBlock(new RectTransform(new Vector2(1.0f - inputFieldWidth, 1), frame.RectTransform), displayName, font: GUIStyle.SmallFont)
+                var editableAttribute = property.GetAttribute<Editable>();
+                if (editableAttribute.ReadOnly)
                 {
-                    ToolTip = toolTip
-                };
-                var valueField = new GUITextBlock(new RectTransform(new Vector2(inputFieldWidth, 1), frame.RectTransform, Anchor.TopRight), value.ToString())
-                {
-                    ToolTip = toolTip,
-                    Font = GUIStyle.SmallFont
-                };
-                return valueField;
-            }
-            else
-            {
-                GUITickBox propertyTickBox = new GUITickBox(new RectTransform(new Point(Rect.Width, elementHeight), layoutGroup.RectTransform, isFixedSize: true), displayName)
-                {
-                    Font = GUIStyle.SmallFont,
-                    Enabled = !Readonly,
-                    Selected = value,
-                    ToolTip = toolTip,
-                    OnSelected = (tickBox) =>
+                    var frame = new GUIFrame(new RectTransform(new Point(Rect.Width, Math.Max(elementHeight, 26)), layoutGroup.RectTransform, isFixedSize: true), color: Color.Transparent);
+                    var label = new GUITextBlock(new RectTransform(new Vector2(1.0f - inputFieldWidth, 1), frame.RectTransform), displayName, font: GUIStyle.SmallFont)
                     {
-                        if (SetPropertyValue(property, entity, tickBox.Selected))
-                        {
-                            TrySendNetworkUpdate(entity, property);
-                        }
-                        // Ensure that the values stay in sync (could be that we force the value in the property accessor).
-                        bool propertyValue = (bool)property.GetValue(entity);
-                        if (tickBox.Selected != propertyValue)
-                        {
-                            tickBox.Selected = propertyValue;
-                            tickBox.Flash(Color.Red);
-                        }
-                        return true;
-                    }
-                };
-                refresh += () =>
+                        ToolTip = toolTip
+                    };
+                    var valueField = new GUITextBlock(new RectTransform(new Vector2(inputFieldWidth, 1), frame.RectTransform, Anchor.TopRight), value.ToString())
+                    {
+                        ToolTip = toolTip,
+                        Font = GUIStyle.SmallFont
+                    };
+                    return valueField;
+                }
+                else
                 {
-                    propertyTickBox.Selected = (bool)property.GetValue(entity);
-                };
-                if (!Fields.ContainsKey(property.Name)) { Fields.Add(property.Name.ToIdentifier(), new GUIComponent[] { propertyTickBox }); }
-                return propertyTickBox;
+                    GUITickBox propertyTickBox = new GUITickBox(new RectTransform(new Point(Rect.Width, elementHeight), layoutGroup.RectTransform, isFixedSize: true), displayName)
+                    {
+                        Font = GUIStyle.SmallFont,
+                        Enabled = !Readonly,
+                        Selected = value,
+                        ToolTip = toolTip,
+                        OnSelected = (tickBox) =>
+                        {
+                            if (SetPropertyValue(property, entity, tickBox.Selected))
+                            {
+                                TrySendNetworkUpdate(entity, property);
+                            }
+                            // Ensure that the values stay in sync (could be that we force the value in the property accessor).
+                            bool propertyValue = (bool)property.GetValue(entity);
+                            if (tickBox.Selected != propertyValue)
+                            {
+                                tickBox.Selected = propertyValue;
+                                tickBox.Flash(Color.Red);
+                            }
+                            return true;
+                        }
+                    };
+                    refresh += () =>
+                    {
+                        propertyTickBox.Selected = (bool)property.GetValue(entity);
+                    };
+                    if (!Fields.ContainsKey(property.Name)) { Fields.Add(property.Name.ToIdentifier(), new GUIComponent[] { propertyTickBox }); }
+                    return propertyTickBox;
+                }
             }
-        }
 
         public GUIComponent CreateIntField(ISerializableEntity entity, SerializableProperty property, int value, LocalizedString displayName, LocalizedString toolTip)
         {
@@ -1509,6 +1513,38 @@ namespace Barotrauma
                     };
                 }
             }
+        }
+
+        public GUIComponent CreateFontField(ISerializableEntity entity, SerializableProperty property, GUIFont value, LocalizedString displayName, LocalizedString toolTip)
+        {
+            GUIFrame frame = new(new RectTransform(new Point(Rect.Width, elementHeight), layoutGroup.RectTransform, isFixedSize: true), color: Color.Transparent);
+            GUITextBlock label = new(new RectTransform(new Vector2(1f - inputFieldWidth, 1f), frame.RectTransform), displayName, font: GUIStyle.SmallFont)
+            {
+                ToolTip = toolTip
+            };
+            GUIDropDown dropDown = new GUIDropDown(new RectTransform(new Vector2(inputFieldWidth, 1), frame.RectTransform, Anchor.TopRight), elementCount: GUIStyle.Fonts.Count)
+            {
+                ToolTip = toolTip
+            };
+            foreach ((Identifier fontIdentifier, GUIFont font) in GUIStyle.Fonts)
+            {
+                dropDown.AddItem(fontIdentifier.Value, font);
+            }
+            dropDown.SelectItem(value);
+            dropDown.OnSelected += (selected, val) =>
+            {
+                if (SetPropertyValue(property, entity, val))
+                {
+                    TrySendNetworkUpdate(entity, property);
+                }
+                return true;
+            };
+            refresh += () =>
+            {
+                if (!dropDown.Dropped) { dropDown.SelectItem(property.GetValue(entity)); }
+            };
+            if (!Fields.ContainsKey(property.Name)) { Fields.Add(property.Name.ToIdentifier(), new GUIComponent[] { dropDown }); }
+            return frame;
         }
 
         private static void TrySendNetworkUpdate(ISerializableEntity entity, SerializableProperty property)
