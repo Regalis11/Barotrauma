@@ -1,13 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using Barotrauma.Networking;
 
 namespace Barotrauma.Items.Components
 {
-    class OxygenGenerator : Powered
+    internal partial class OxygenGenerator : Powered
     {
+        private const int GenerationRatioSteps = 10;
+        private const float GenerationRatioStep = 1f / GenerationRatioSteps;
+        
         private float generatedAmount;
+        private float generationRatio;
 
         //key = vent, float = total volume of the hull the vent is in and the hulls connected to it
         private List<(Vent vent, float hullVolume)> ventList;
@@ -16,7 +22,10 @@ namespace Barotrauma.Items.Components
 
         private float ventUpdateTimer;
         const float VentUpdateInterval = 5.0f;
+
+        private float controlLockTimer;
         
+        [Serialize(0f, IsPropertySaveable.No, "The current adjusted oxygen output of the generator. Setting this value in XML has no effect.")]
         public float CurrFlow
         {
             get;
@@ -29,18 +38,39 @@ namespace Barotrauma.Items.Components
             get { return generatedAmount; }
             set { generatedAmount = MathHelper.Clamp(value, -10000.0f, 10000.0f); }
         }
+        
+        [Editable(0f, 1f), Serialize(1f, IsPropertySaveable.Yes, "The ratio of the max generation capacity this machine is currently outputting.", alwaysUseInstanceValues: true)]
+        public float GenerationRatio
+        {
+            get => generationRatio;
+            set
+            {
+                if (!MathUtils.IsValid(value)) { return; }
+                generationRatio = MathUtils.RoundTowardsClosest(MathHelper.Clamp(value, 0f, 1f), GenerationRatioStep);
+#if CLIENT
+                UpdateSlider();
+#endif
+            }
+        }
 
         public OxygenGenerator(Item item, ContentXElement element)
             : base(item, element)
         {
             //randomize update timer so all oxygen generators don't update at the same time
             ventUpdateTimer = Rand.Range(0.0f, VentUpdateInterval);
+            InitProjSpecific();
             IsActive = true;
         }
+        
+        partial void InitProjSpecific();
+
+        public override bool Pick(Character picker) => picker != null;
 
         public override void Update(float deltaTime, Camera cam)
         {
             UpdateOnActiveEffects(deltaTime);
+
+            controlLockTimer -= deltaTime;
 
             CurrFlow = 0.0f;
 
@@ -51,7 +81,7 @@ namespace Barotrauma.Items.Components
                 return;
             }
 
-            CurrFlow = Math.Min(PowerConsumption > 0 ? Voltage : 1.0f, MaxOverVoltageFactor) * generatedAmount * 100.0f;
+            CurrFlow = Math.Min(PowerConsumption > 0 ? Voltage : 1.0f, MaxOverVoltageFactor) * generatedAmount * generationRatio * 100f;
             float conditionMult = item.Condition / item.MaxCondition;
             //100% condition = 100% oxygen
             //50% condition = 25% oxygen
@@ -59,6 +89,8 @@ namespace Barotrauma.Items.Components
             CurrFlow *= conditionMult * conditionMult;
 
             UpdateVents(CurrFlow, deltaTime);
+            
+            item.SendSignal(MathUtils.RoundToInt(generationRatio * 100).ToString(), "rate_out");
         }
 
         /// <summary>
@@ -71,13 +103,28 @@ namespace Barotrauma.Items.Components
                 return 0;
             }
 
-            float consumption = powerConsumption;
+            float consumption = powerConsumption * generationRatio;
 
             //consume more power when in a bad condition
             item.GetComponent<Repairable>()?.AdjustPowerConsumption(ref consumption);
             return consumption;
         }
 
+        public override void ReceiveSignal(Signal signal, Connection connection)
+        {
+            if (connection.IsPower) { return; }
+            switch (connection.Name)
+            {
+                case "set_rate":
+                    if (float.TryParse(signal.value, NumberStyles.Any, CultureInfo.InvariantCulture, out float newRate) && MathUtils.IsValid(newRate))
+                    {
+                        controlLockTimer = 0.1f;
+                        GenerationRatio = MathHelper.Clamp(newRate / 100f, 0f, 1f);
+                    }
+                    break;
+            }
+        }
+        
         public override void UpdateBroken(float deltaTime, Camera cam)
         {
             base.UpdateBroken(deltaTime, cam);
@@ -146,5 +193,10 @@ namespace Barotrauma.Items.Components
             }
             return 0.0f;
         }
+        
+        #region Networking
+        private static float ReadGenerationRatio(IReadMessage msg) => msg.ReadRangedInteger(0, GenerationRatioSteps) * GenerationRatioStep;
+        private void WriteGenerationRatio(IWriteMessage msg) => msg.WriteRangedInteger(MathUtils.RoundToInt(generationRatio / GenerationRatioStep), 0, GenerationRatioSteps);
+        #endregion
     }
 }

@@ -1,0 +1,11 @@
+<UpgradeModules>
+  <UpgradeCategory identifier="oxygengenerators" items="oxygengenerator"/>
+  <UpgradeModule identifier="increaseoxygengeneration" maxlevel="2" categories="oxygengenerators" increaseontooltip="20">
+    <Price baseprice="2000" increaselow="+0%" increasehigh="+200%"/>
+    <ResourceCost item="oxygeniteshard" amount="5" levels="1-2"/>
+    <MaxLevel tier="1" level="0"/>
+    <MaxLevel tier="2" level="1"/>
+    <OxygenGenerator generatedamount="+20%"/>
+    <Sprite texture="Content/UI/CampaignUIAtlas2.png" sourcerect="768,768,128,128"/>
+  </UpgradeModule>
+</UpgradeModules>

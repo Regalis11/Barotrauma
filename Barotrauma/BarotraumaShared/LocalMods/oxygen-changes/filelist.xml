@@ -1,0 +1,5 @@
+<ContentPackage name="oxygen-changes" modversion="1.0.0" gameversion="1.0.8.0">
+  <Text file="%ModDir%/Locale/English.xml"/>
+  <Item file="%ModDir%/OxygenGenerators.xml"/>
+  <UpgradeModules file="%ModDir%/Upgrades.xml"/>
+</ContentPackage>

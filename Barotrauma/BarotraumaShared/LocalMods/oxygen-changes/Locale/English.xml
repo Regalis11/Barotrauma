@@ -1,0 +1,5 @@
+<Text language="English">
+  <OxygenGenerationRate>Oxygen Generation Rate</OxygenGenerationRate>
+  <connection.oxygen.setrate>set_oxygen_rate</connection.oxygen.setrate>
+  <connection.oxygen.rateout>oxygen_rate_out</connection.oxygen.rateout>
+</Text>
