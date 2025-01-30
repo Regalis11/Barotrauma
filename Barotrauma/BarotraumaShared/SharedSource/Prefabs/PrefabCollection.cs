@@ -109,90 +109,93 @@ namespace Barotrauma
         {
             public class Node
             {
-                public Node(Identifier identifier) { Identifier = identifier; }
+                public Node(T prefab) { Prefab = prefab; }
                 
-                public readonly Identifier Identifier;
+                public readonly T Prefab;
                 public Node? Parent = null;
                 public readonly HashSet<Node> Inheritors = new HashSet<Node>();
+                public void CheckParent(T prefab, IEnumerable<T> list)
+                {
+                    if (Parent?.Prefab == prefab)
+                        throw new Exception("Inheritance cycle detected: "
+                            + string.Join(", ", list.Select(n => n.Identifier)));
+                    Parent?.CheckParent(prefab, list.Prepend(Parent.Prefab));
+                }
             }
 
             private readonly PrefabCollection<T> prefabCollection;
             
             public InheritanceTreeCollection(PrefabCollection<T> collection) { prefabCollection = collection; }
 
-            public readonly Dictionary<Identifier, Node> IdToNode = new Dictionary<Identifier, Node>();
+            private readonly Dictionary<Prefab, Node> prefabToNode = new Dictionary<Prefab, Node>();
             public readonly HashSet<Node> RootNodes = new HashSet<Node>();
 
-            public Node? AddNodeAndInheritors(Identifier id)
+            public Node? AddNodeAndInheritors(T prefab)
             {
-                if (!prefabCollection.TryGet(id, out T? _, requireInheritanceValid: false)) { return null; }
+                if (!prefabCollection.TryGet(prefab.Identifier, out T? _, requireInheritanceValid: false)) { return null; }
                 
-                if (!IdToNode.TryGetValue(id, out var node))
-                {
-                    node = new Node(id);
-                    RootNodes.Add(node);
-                    IdToNode.Add(id, node);
-                }
-                else
+                if (prefabToNode.TryGetValue(prefab, out var node))
                 {
                     //if the node already exists, it already contains
                     //all inheritors so let's just return this immediately
                     return node;
                 }
 
+                node = new Node(prefab);
+                prefabToNode.Add(prefab, node);
+                RootNodes.Add(node);
+
+                if (prefab is IImplementsVariants<T> variant && variant.VariantOf == prefab.Identifier)
+                {
+                    T? p = prefabCollection.prefabs[prefab.Identifier].GetParentPrefab(prefab);
+                    if (p != null)
+                    {
+                        var newNode = AddNodeAndInheritors(p);
+                        if (newNode is not null)
+                        {
+                            newNode.CheckParent(prefab, prefab.ToEnumerable());
+
+                            RootNodes.Remove(node);
+                            node.Parent = newNode;
+                            newNode.Inheritors.Add(node);
+                        }
+                    }
+                }
                 var enumerator = prefabCollection.GetEnumerator(requireInheritanceValid: false);
                 while (enumerator.MoveNext())
                 {
                     T p = enumerator.Current;
-                    if (p is not IImplementsVariants<T> implementsVariants || implementsVariants.VariantOf != id)
+                    if (p.Identifier == prefab.Identifier || p is not IImplementsVariants<T> implementsVariants || implementsVariants.VariantOf != prefab.Identifier)
                     {
                         continue;
                     }
-                    var inheritorNode = AddNodeAndInheritors(p.Identifier);
+
+                    var inheritorNode = AddNodeAndInheritors(p);
                     if (inheritorNode is null) { continue; }
                     RootNodes.Remove(inheritorNode);
                     inheritorNode.Parent = node;
+                    inheritorNode.CheckParent(p, p.ToEnumerable());
                     node.Inheritors.Add(inheritorNode);
                 }
+
                 return node;
             }
-
-            private static void FindCycles(in Node node, HashSet<Node> uncheckedNodes)
-            {
-                HashSet<Node> checkedNodes = new HashSet<Node>();
-                List<Node> hierarchyPositions = new List<Node>();
-                Node? currNode = node;
-                do
-                {
-                    if (!uncheckedNodes.Contains(currNode)) { break; }
-                    if (checkedNodes.Contains(currNode))
-                    {
-                        int index = hierarchyPositions.IndexOf(currNode);
-                        throw new Exception("Inheritance cycle detected: "
-                            +string.Join(", ", hierarchyPositions.Skip(index).Select(n => n.Identifier)));
-                    }
-                    checkedNodes.Add(currNode);
-                    hierarchyPositions.Add(currNode);
-                    currNode = currNode.Parent;
-                } while (currNode != null);
-                uncheckedNodes.RemoveWhere(i => checkedNodes.Contains(i));
-            }
-            
-            public void AddNodesAndInheritors(IEnumerable<Identifier> ids)
-                => ids.ForEach(id => AddNodeAndInheritors(id));
+            public void AddNodesAndInheritors(IEnumerable<T> prefabs)
+                => prefabs.ForEach(prefab => AddNodeAndInheritors(prefab));
 
             public void InvokeCallbacks()
             {
-                HashSet<Node> uncheckedNodes = IdToNode.Values.ToHashSet();
-                IdToNode.Values.ForEach(v => PrefabCollection<T>.InheritanceTreeCollection.FindCycles(v, uncheckedNodes));
                 void invokeCallbacksForNode(Node node)
                 {
-                    if (!prefabCollection.TryGet(node.Identifier, out var p, requireInheritanceValid: false) ||
-                        p is not IImplementsVariants<T> prefab) { return; }
-                    if (!prefab.VariantOf.IsEmpty && prefabCollection.TryGet(prefab.VariantOf, out T? parent, requireInheritanceValid: false)) 
-                    { 
-                        prefab.InheritFrom(parent);
-                        prefab.ParentPrefab = parent;
+                    if (node.Prefab is not IImplementsVariants<T> prefab) { return; }
+                    if (!prefab.VariantOf.IsEmpty)
+                    {
+                        T? parent = node.Parent?.Prefab;
+                        if (parent != null || prefabCollection.TryGet(prefab.VariantOf, out parent, requireInheritanceValid: false))
+                        {
+                            prefab.InheritFrom(parent);
+                            prefab.ParentPrefab = parent;
+                        }
                     }
                     node.Inheritors.ForEach(invokeCallbacksForNode);
                 }
@@ -208,15 +211,14 @@ namespace Barotrauma
                 (implementsVariants.VariantOf.IsEmpty || (implementsVariants.ParentPrefab != null && IsInheritanceValid(implementsVariants.ParentPrefab)));
         }
 
-        private void HandleInheritance(Identifier prefabIdentifier)
-            => HandleInheritance(prefabIdentifier.ToEnumerable());
+        private void HandleInheritance(T prefab)
+            => HandleInheritance(prefab.ToEnumerable());
 
-        private void HandleInheritance(IEnumerable<Identifier> identifiers)
+        private void HandleInheritance(IEnumerable<T> prefabs)
         {
             if (!implementsVariants) { return; }
-            foreach (var id in identifiers)
+            foreach (var prefab in prefabs)
             {
-                if (!TryGet(id, out T? prefab, requireInheritanceValid: false)) { continue; }
                 if (prefab is IImplementsVariants<T> implementsVariants && !implementsVariants.VariantOf.IsEmpty)
                 {
                     //reset parent prefab, it'll get set in InvokeCallbacks if the inheritance is valid
@@ -224,7 +226,7 @@ namespace Barotrauma
                 }
             }
             InheritanceTreeCollection inheritanceTreeCollection = new InheritanceTreeCollection(this);
-            inheritanceTreeCollection.AddNodesAndInheritors(identifiers);
+            inheritanceTreeCollection.AddNodesAndInheritors(prefabs);
             inheritanceTreeCollection.InvokeCallbacks();
         }
 
@@ -409,7 +411,7 @@ namespace Barotrauma
                 if (!prefabs.TryAdd(prefab.Identifier, selector)) { throw new Exception($"Failed to add selector for \"{prefab.Identifier}\""); }
             }
             OnAdd?.Invoke(prefab, isOverride);
-            HandleInheritance(prefab.Identifier);
+            HandleInheritance(prefab);
         }
 
         /// <summary>
@@ -428,7 +430,7 @@ namespace Barotrauma
             {
                 prefabs.TryRemove(prefab.Identifier, out _);
             }
-            HandleInheritance(prefab.Identifier);
+            HandleInheritance(prefab);
         }
 
         /// <summary>
@@ -489,7 +491,7 @@ namespace Barotrauma
             }
             topMostOverrideFile = overrideFiles.Any() ? overrideFiles.First(f1 => overrideFiles.All(f2 => f1.ContentPackage.Index >= f2.ContentPackage.Index)) : null;
             OnSort?.Invoke();
-            HandleInheritance(this.Select(p => p.Identifier));
+            HandleInheritance(prefabs.Values.Where(x => !x.IsEmpty).Select(x => x.ActivePrefab!));
 
             var enumerator = GetEnumerator(requireInheritanceValid: false);
             while (enumerator.MoveNext())

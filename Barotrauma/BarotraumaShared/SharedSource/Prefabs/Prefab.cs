@@ -34,7 +34,7 @@ namespace Barotrauma
         public readonly Identifier Identifier;
         public readonly ContentFile ContentFile;
 
-        public ContentPackage? ContentPackage => ContentFile?.ContentPackage;
+        public ContentPackage ContentPackage => ContentFile.ContentPackage;
         public ContentPath FilePath => ContentFile.Path;
 
         public Prefab(ContentFile file, Identifier identifier)

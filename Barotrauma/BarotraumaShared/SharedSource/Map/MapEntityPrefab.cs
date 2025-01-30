@@ -237,7 +237,7 @@ namespace Barotrauma
         [Serialize(1f, IsPropertySaveable.Yes), Editable(0.1f, 10f, DecimalCount = 3)]
         public float Scale { get; protected set; }
 
-        protected MapEntityPrefab(Identifier identifier) : base(null, identifier) { }
+        protected MapEntityPrefab(Identifier identifier) : base(ContentFile.Empty, identifier) { }
 
         public MapEntityPrefab(ContentXElement element, ContentFile file) : base(file, element) { }
 

@@ -60,6 +60,36 @@ namespace Barotrauma
         }
         
         public readonly static ImmutableHashSet<TypeInfo> Types;
+
+
+        private ContentFile(ContentPackage contentPackage, ContentPath path, Md5Hash hash)
+        {
+            ContentPackage = contentPackage;
+            Path = path;
+            Hash = hash;
+        }
+        private class EmptyContentFile : ContentFile
+        {
+            public EmptyContentFile() : base(ContentPackage.Empty, ContentPath.Empty, Md5Hash.Blank)
+            { }
+
+            public override void LoadFile()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Sort()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void UnloadFile()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public readonly static ContentFile Empty = new EmptyContentFile();
         static ContentFile()
         {
             Types = ReflectionUtils.GetDerivedNonAbstract<ContentFile>()

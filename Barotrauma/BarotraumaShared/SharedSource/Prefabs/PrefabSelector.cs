@@ -29,6 +29,23 @@ namespace Barotrauma
             }
         }
 
+        public T? GetParentPrefab(T prefab)
+        {
+            using (new ReadLock(rwl)) 
+            {
+                T? previous = null;
+                int index = overrides.IndexOf(prefab) + 1;
+                if (index == 0) { throw new Exception("Only for override inheritance!"); }
+                if (index < overrides.Count)
+                {
+                    previous = overrides[index];
+                }
+                else if (basePrefabInternal != prefab)
+                    previous = basePrefabInternal;
+                return previous;
+            }
+        }
+
         public void Add(T prefab, bool isOverride)
         {
             using (new WriteLock(rwl)) { AddInternal(prefab, isOverride); }
@@ -102,7 +119,12 @@ namespace Barotrauma
         {
             if (isOverride)
             {
-                if (overrides.Contains(prefab)) { throw new InvalidOperationException($"Duplicate prefab in PrefabSelector ({typeof(T)}, {prefab.Identifier}, {prefab.ContentFile.ContentPackage.Name})"); }
+                if (overrides.Contains(prefab)) { throw new InvalidOperationException($"Duplicate prefab in PrefabSelector ({typeof(T)}, {prefab.Identifier}, {prefab.ContentPackage.Name})"); }
+                //disallow double overloading in one package in case of inheritance to avoid problems with ancestor determination
+                if (prefab is IImplementsVariants<T> variant && variant.VariantOf == prefab.Identifier && overrides.Any(x => x.ContentPackage == prefab.ContentPackage))
+                {
+                    throw new InvalidOperationException($"Double override prefab in one content package PrefabSelector ({typeof(T)}, {prefab.Identifier}, {prefab.ContentPackage.Name})");
+                }
                 overrides.Add(prefab);
             }
             else
@@ -139,7 +161,7 @@ namespace Barotrauma
 
         private void SortInternal()
         {
-            overrides.Sort((p1, p2) => (p1.ContentPackage?.Index ?? int.MaxValue) - (p2.ContentPackage?.Index ?? int.MaxValue));
+            overrides.Sort((p1, p2) => p1.ContentPackage.Index - p2.ContentPackage.Index);
         }
 
         private bool isEmptyInternal => basePrefabInternal is null && overrides.Count == 0;

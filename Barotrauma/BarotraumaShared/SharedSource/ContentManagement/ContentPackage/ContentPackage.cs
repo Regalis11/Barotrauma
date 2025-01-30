@@ -24,9 +24,23 @@ namespace Barotrauma
                        ? '\n' + stackTrace.CleanupStackTrace()
                        : string.Empty);
         }
+        private ContentPackage()
+        {
+            Path = string.Empty;
+            Name = string.Empty;
+            GameVersion = Barotrauma.GameVersion.CurrentVersion;
+            ModVersion = string.Empty;
+            Hash = Md5Hash.Blank;
+        }
+        private class EmptyContentPackage : ContentPackage
+        {
+            public EmptyContentPackage() : base()
+            { }
+        }
 
         public static readonly Version MinimumHashCompatibleVersion = new Version(1, 1, 0, 0);
-        
+        public static readonly ContentPackage Empty = new EmptyContentPackage();
+
         public const string LocalModsDir = "LocalMods";
         public static readonly string WorkshopModsDir = Barotrauma.IO.Path.Combine(
             SaveUtil.DefaultSaveFolder,
