@@ -1,4 +1,5 @@
-﻿using FarseerPhysics;
+﻿using Barotrauma.Extensions;
+using FarseerPhysics;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Dynamics.Contacts;
 using Microsoft.Xna.Framework;
@@ -225,9 +226,9 @@ namespace Barotrauma.Items.Components
                 bool aim = item.RequireAimToUse && picker.AllowInput && picker.IsKeyDown(InputType.Aim) && reloadTimer <= 0 && picker.CanAim && !UsageDisabledByRangedWeapon(picker);
                 if (aim)
                 {
-                    UpdateSwingPos(deltaTime, out Vector2 swingPos);
+                    UpdateSwing(deltaTime, out Vector2 swingPos, out float swingAngle);
                     hitPos = MathUtils.WrapAnglePi(Math.Min(hitPos + deltaTime * 3f, MathHelper.PiOver4));
-                    ac.HoldItem(deltaTime, item, handlePos, itemPos: aimPos + swingPos, aim: false, hitPos, holdAngle + hitPos + aimAngle, aimMelee: true);
+                    ac.HoldItem(deltaTime, item, handlePos, itemPos: aimPos + swingPos, aim: false, hitPos, holdAngle + hitPos + aimAngle, aimMelee: true, armAngle: swingAngle);
                     if (ac.InWater)
                     {
                         ac.LockFlipping();

@@ -36,8 +36,6 @@ namespace Barotrauma.Items.Components
         private LocalizedString prevMsg;
         private Dictionary<RelatedItem.RelationType, List<RelatedItem>> prevRequiredItems;
 
-        private float swingState;
-
         private Character prevEquipper;
 
         public override bool IsAttached => Attached;
@@ -147,11 +145,7 @@ namespace Barotrauma.Items.Components
         protected Vector2 aimPos;
 
         protected float holdAngle;
-#if DEBUG
-        [Editable, Serialize(0.0f, IsPropertySaveable.No, description: "The rotation at which the character holds the item (in degrees, relative to the rotation of the character's hand).")]
-#else
-        [Serialize(0.0f, IsPropertySaveable.No)] 
-#endif
+        [Serialize(0f, IsPropertySaveable.No, description: "The rotation at which the character holds the item (in degrees, relative to the rotation of the character's hand).")] 
         public float HoldAngle
         {
             get { return MathHelper.ToDegrees(holdAngle); }
@@ -159,11 +153,7 @@ namespace Barotrauma.Items.Components
         }
 
         protected float aimAngle;
-#if DEBUG
-        [Editable, Serialize(0.0f, IsPropertySaveable.No, description: "The rotation at which the character holds the item while aiming (in degrees, relative to the rotation of the character's hand).")]
-#else
-        [Serialize(0.0f, IsPropertySaveable.No)] 
-#endif
+        [Serialize(0f, IsPropertySaveable.No, description: "The rotation at which the character holds the item while aiming (in degrees, relative to the rotation of the character's hand).")] 
         public float AimAngle
         {
             get { return MathHelper.ToDegrees(aimAngle); }
@@ -171,50 +161,34 @@ namespace Barotrauma.Items.Components
         }
 
         private Vector2 swingAmount;
-#if DEBUG
-        [Editable, Serialize("0.0,0.0", IsPropertySaveable.No, description: "How much the item swings around when aiming/holding it (in pixels, as an offset from AimPos/HoldPos).")]
-#else
-        [Serialize("0.0,0.0", IsPropertySaveable.No)] 
-#endif
+        [Serialize("0,0", IsPropertySaveable.No, description: "How much the item swings around when aiming/holding it (in pixels, as an offset from AimPos/HoldPos).")] 
         public Vector2 SwingAmount
         {
-            get { return ConvertUnits.ToDisplayUnits(swingAmount); }
-            set { swingAmount = ConvertUnits.ToSimUnits(value); }
+            get => ConvertUnits.ToDisplayUnits(swingAmount);
+            set => swingAmount = ConvertUnits.ToSimUnits(value);
         }
-#if DEBUG
-        [Editable, Serialize(0.0f, IsPropertySaveable.No, description: "How fast the item swings around when aiming/holding it (only valid if SwingAmount is set).")]
-#else
-        [Serialize(0.0f, IsPropertySaveable.No)]
-#endif
 
+        private float swingRotation;
+        [Serialize(0f, IsPropertySaveable.No, description: "How much the item swings around while aiming/holding it (in degrees, as an offset from the angle between the shoulder and the cursor.")]
+        public float SwingRotation
+        {
+            get => MathHelper.ToDegrees(swingRotation);
+            set => swingRotation = MathHelper.ToRadians(value);
+        }
+
+        [Serialize(1f, IsPropertySaveable.No, description: "How fast the item swings around when aiming/holding it (only valid if SwingAmount is set).")]
         public float SwingSpeed { get; set; }
 
-#if DEBUG
-        [Editable, Serialize(false, IsPropertySaveable.No, description: "Should the item swing around when it's being held.")]
-#else
-        [Serialize(false, IsPropertySaveable.No)]
-#endif
+        [Serialize(false, IsPropertySaveable.No, description: "Should the item swing around when it's being held.")]
         public bool SwingWhenHolding { get; set; }
 
-#if DEBUG
-        [Editable, Serialize(false, IsPropertySaveable.No, description: "Should the item swing around when it's being aimed.")]
-#else
-        [Serialize(false, IsPropertySaveable.No)]
-#endif
+        [Serialize(false, IsPropertySaveable.No, description: "Should the item swing around when it's being aimed.")]
         public bool SwingWhenAiming { get; set; }
 
-#if DEBUG
-        [Editable, Serialize(false, IsPropertySaveable.No, description: "Should the item swing around when it's being used (for example, when firing a weapon or a welding tool).")]
-#else
-        [Serialize(false, IsPropertySaveable.No)]
-#endif
+        [Serialize(false, IsPropertySaveable.No, description: "Should the item swing around when it's being used (for example, when firing a weapon or a welding tool).")]
         public bool SwingWhenUsing { get; set; }
 
-#if DEBUG
-        [Editable, Serialize(false, IsPropertySaveable.No)]
-#else
         [Serialize(false, IsPropertySaveable.No)]
-#endif
         public bool DisableHeadRotation { get; set; }
 
         [Serialize(false, IsPropertySaveable.No, description: "If true, this item can't be used if the character is also holding a ranged weapon.")]
@@ -963,7 +937,7 @@ namespace Barotrauma.Items.Components
                 Drawable = true;
             }
 
-            UpdateSwingPos(deltaTime, out Vector2 swingPos);
+            UpdateSwing(deltaTime, out Vector2 swingPos, out float swingAngle);
             if (item.body.Dir != picker.AnimController.Dir) 
             {
                 item.FlipX(relativeToSub: false);
@@ -985,12 +959,12 @@ namespace Barotrauma.Items.Components
                     }
                     else
                     {
-                        picker.AnimController.HoldItem(deltaTime, item, scaledHandlePos, itemPos: aimPos + swingPos, aim: true, holdAngle, aimAngle);   
+                        picker.AnimController.HoldItem(deltaTime, item, scaledHandlePos, itemPos: aimPos + swingPos, aim: true, holdAngle, aimAngle, armAngle: swingAngle);   
                     }
                 }
                 else
                 {
-                    picker.AnimController.HoldItem(deltaTime, item, scaledHandlePos, itemPos: holdPos + swingPos, aim: false, holdAngle);
+                    picker.AnimController.HoldItem(deltaTime, item, scaledHandlePos, itemPos: holdPos + swingPos, aim: false, holdAngle, armAngle: swingAngle);
                     if (GetRope() is { SnapWhenNotAimed: true } rope)
                     {
                         if (rope.Item.ParentInventory == null)
@@ -1027,20 +1001,21 @@ namespace Barotrauma.Items.Components
             }
         }
 
-        public void UpdateSwingPos(float deltaTime, out Vector2 swingPos)
+        public void UpdateSwing(float deltaTime, out Vector2 swingPos, out float swingAngle)
         {
             swingPos = Vector2.Zero;
-            if (swingAmount != Vector2.Zero && !picker.IsUnconscious && picker.Stun <= 0.0f)
+            swingAngle = 0f;
+            if (!picker.IsUnconscious && picker.Stun <= 0f && (SwingWhenHolding || SwingWhenAiming && picker.IsKeyDown(InputType.Aim) || SwingWhenUsing && picker.IsKeyDown(InputType.Aim) && picker.IsKeyDown(InputType.Shoot)))
             {
-                swingState += deltaTime;
-                swingState %= 1.0f;
-                if (SwingWhenHolding ||
-                    (SwingWhenAiming && picker.IsKeyDown(InputType.Aim)) ||
-                    (SwingWhenUsing && picker.IsKeyDown(InputType.Aim) && picker.IsKeyDown(InputType.Shoot)))
+                float noisePos = (float)Timing.TotalTimeUnpaused * SwingSpeed * deltaTime;
+                if (swingAmount != Vector2.Zero)
                 {
-                    swingPos = swingAmount * new Vector2(
-                        PerlinNoise.GetPerlin(swingState * SwingSpeed * 0.1f, swingState * SwingSpeed * 0.1f) - 0.5f,
-                        PerlinNoise.GetPerlin(swingState * SwingSpeed * 0.1f + 0.5f, swingState * SwingSpeed * 0.1f + 0.5f) - 0.5f);
+                    swingPos.X = MathHelper.Lerp(-swingAmount.X, swingAmount.X, PerlinNoise.GetPerlin(noisePos));
+                    swingPos.Y = MathHelper.Lerp(-swingAmount.Y, swingAmount.Y, PerlinNoise.GetPerlin(noisePos - 0.5f));
+                }
+                if (swingRotation != 0f)
+                {
+                    swingAngle = MathHelper.Lerp(-swingRotation, swingRotation, PerlinNoise.GetPerlin(noisePos));
                 }
             }
         }

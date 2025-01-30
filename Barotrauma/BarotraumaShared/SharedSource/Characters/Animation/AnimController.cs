@@ -434,7 +434,7 @@ namespace Barotrauma
         private Direction previousDirection;
         private readonly Vector2[] transformedHandlePos = new Vector2[2];
         //TODO: refactor this method, it's way too convoluted
-        public void HoldItem(float deltaTime, Item item, Vector2[] handlePos, Vector2 itemPos, bool aim, float holdAngle, float itemAngleRelativeToHoldAngle = 0.0f, bool aimMelee = false, Vector2? targetPos = null)
+        public void HoldItem(float deltaTime, Item item, Vector2[] handlePos, Vector2 itemPos, bool aim, float holdAngle, float itemAngleRelativeToHoldAngle = 0.0f, bool aimMelee = false, Vector2? targetPos = null, float armAngle = 0f)
         {
             aimingMelee = aimMelee;
             if (character.Stun > 0.0f || character.IsIncapacitated)
@@ -476,7 +476,7 @@ namespace Barotrauma
                     MathUtils.RotatePoint(Vector2.UnitX, torsoRotation);
                 
                 holdAngle = MathUtils.VectorToAngle(new Vector2(diff.X, diff.Y * Dir)) - torsoRotation * Dir;
-                holdAngle += GetAimWobble(rightHand, leftHand, item);
+                holdAngle += armAngle + GetAimWobble(rightHand, leftHand, item);
                 itemAngle = torsoRotation + holdAngle * Dir;
 
                 if (holdable.ControlPose)
@@ -493,6 +493,7 @@ namespace Barotrauma
             }
             else
             {
+                holdAngle += armAngle;
                 if (holdable.UseHandRotationForHoldAngle)
                 {
                     if (equippedInRightHand)
