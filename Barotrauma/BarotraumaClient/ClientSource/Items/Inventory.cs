@@ -339,6 +339,17 @@ namespace Barotrauma
                         toolTip += $"‖color:{conditionColorStr}‖ ({(int)item.ConditionPercentage} %)‖color:end‖";
                     }
                     if (!description.IsNullOrEmpty()) { toolTip += '\n' + description; }
+
+                    bool isOwnInventory = item.ParentInventory.Owner == Character.Controlled;
+                    foreach (ItemComponent component in item.Components)
+                    {
+                        if (isOwnInventory && component.ShowMsgInOwnInventory || component.ShowMsgInOtherInventory)
+                        {
+                            Color color = component.HasRequiredItems(character, false) ? Color.Cyan : Color.Gray;
+                            toolTip += $"\n‖color:{color.ToStringHex()}‖{component.DisplayMsg}‖color:end‖";
+                        }
+                    }
+
                     if (item.Prefab.ContentPackage != GameMain.VanillaContent && item.Prefab.ContentPackage != null)
                     {
                         colorStr = XMLExtensions.ToStringHex(Color.MediumPurple);

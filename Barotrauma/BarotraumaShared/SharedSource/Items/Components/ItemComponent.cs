@@ -258,6 +258,20 @@ namespace Barotrauma.Items.Components
             set;
         }
 
+        [Serialize(false, IsPropertySaveable.Yes, description: "If set to true, the component's message will also be displayed while in the controlled character's inventory.")]
+        public bool ShowMsgInOwnInventory
+        {
+            get;
+            set;
+        }
+
+        [Serialize(false, IsPropertySaveable.Yes, description: "If set to true, the component's message will also be displayed while in an inventory not owned by the controlled character.")]
+        public bool ShowMsgInOtherInventory
+        {
+            get;
+            set;
+        }
+
         public LocalizedString DisplayMsg
         {
             get;
