@@ -430,6 +430,10 @@ namespace Barotrauma
                 {
                     cam.OffsetAmount = targetOffsetAmount = item.Prefab.OffsetOnSelected * item.OffsetOnSelectedMultiplier;
                 }
+                else if (HeldItems.FirstOrDefault(item => item.GetComponent<Holdable>()?.Aimable ?? false) is Item item2 && IsKeyDown(InputType.Aim))
+                {
+                    cam.OffsetAmount = targetOffsetAmount = item2.GetComponent<Holdable>().CameraAimOffset;
+                }
                 else if (SelectedItem != null && ViewTarget == null &&
                     SelectedItem.Components.Any(ic => ic?.GuiFrame != null && ic.ShouldDrawHUD(this)))
                 {

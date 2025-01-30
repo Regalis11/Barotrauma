@@ -72,7 +72,7 @@ namespace Barotrauma.Lights
 
         public float ObstructVisionAmount;
 
-        private readonly Texture2D visionCircle;
+        private readonly Texture2D visionCircle, visionCone;
 
         private readonly Texture2D gapGlowTexture;
 
@@ -101,6 +101,7 @@ namespace Barotrauma.Lights
             rayCastThread.Start();
 
             visionCircle = Sprite.LoadTexture("Content/Lights/visioncircle.png");
+            visionCone = Sprite.LoadTexture("Content/Lights/lightcone.png");
             highlightRaster = Sprite.LoadTexture("Content/UI/HighlightRaster.png");
             gapGlowTexture = Sprite.LoadTexture("Content/Lights/pointlight_rays.png");
 
@@ -710,25 +711,18 @@ namespace Barotrauma.Lights
                 if (diff.LengthSquared() > 20.0f * 20.0f) { losOffset = diff; }
                 float rotation = MathUtils.VectorToAngle(losOffset);
 
-                //the visible area stretches to the maximum when the cursor is this far from the character
-                const float MaxOffset = 256.0f;
-                //the magic numbers here are just based on experimentation
-                float MinHorizontalScale = MathHelper.Lerp(3.5f, 1.5f, ObstructVisionAmount);
-                float MaxHorizontalScale = MinHorizontalScale * 1.25f;
-                float VerticalScale = MathHelper.Lerp(4.0f, 1.25f, ObstructVisionAmount);
+                // Cone starts at the opposite edge of the circle so it doesn't need to be as tall
+                const float coneHeightMultiplier = 2f;
+                const float scaleMultiplier = 1f;
 
-                //Starting point and scale-based modifier that moves the point of origin closer to the edge of the texture if the player moves their mouse further away, or vice versa.
-                float relativeOriginStartPosition = 0.1f; //Increasing this value moves the origin further behind the character
-                float originStartPosition = visionCircle.Width * relativeOriginStartPosition * MinHorizontalScale;
-                float relativeOriginLookAtPosModifier = -0.055f; //Increase this value increases how much the vision changes by moving the mouse
-                float originLookAtPosModifier = visionCircle.Width * relativeOriginLookAtPosModifier;
-
-                Vector2 scale = new Vector2(
-                    MathHelper.Clamp(losOffset.Length() / MaxOffset, MinHorizontalScale, MaxHorizontalScale), VerticalScale);
+                float scale = (1f - ObstructVisionAmount) * scaleMultiplier;
+                Vector2 circleOrigin = new Vector2(visionCircle.Width, visionCircle.Height) / 2f;
+                Vector2 coneOrigin = new Vector2(0f, visionCone.Height / 2f);
+                Vector2 coneScale = new Vector2(1f / visionCone.Width, scale / visionCone.Height * coneHeightMultiplier) * (losOffset.Length() + circleOrigin.X);
 
                 spriteBatch.Begin(SpriteSortMode.Deferred, transformMatrix: cam.Transform * Matrix.CreateScale(new Vector3(GameSettings.CurrentConfig.Graphics.LightMapScale, GameSettings.CurrentConfig.Graphics.LightMapScale, 1.0f)));
-                spriteBatch.Draw(visionCircle, new Vector2(ViewTarget.WorldPosition.X, -ViewTarget.WorldPosition.Y), null, Color.White, rotation,
-                    new Vector2(originStartPosition + (scale.X * originLookAtPosModifier), visionCircle.Height / 2), scale, SpriteEffects.None, 0.0f);
+                spriteBatch.Draw(visionCircle, new Vector2(ViewTarget.WorldPosition.X, -ViewTarget.WorldPosition.Y), null, Color.White, rotation, circleOrigin, scale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(visionCone, new Vector2(ViewTarget.WorldPosition.X, -ViewTarget.WorldPosition.Y) - Vector2.Normalize(losOffset) * circleOrigin / 2f, null, Color.White, rotation, coneOrigin, coneScale, SpriteEffects.None, 0f);
                 spriteBatch.End();
             }
             else

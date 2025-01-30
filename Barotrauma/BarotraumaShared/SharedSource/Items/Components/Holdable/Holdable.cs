@@ -84,6 +84,9 @@ namespace Barotrauma.Items.Components
             set;
         }
 
+        [Serialize(0f, IsPropertySaveable.Yes, description: "Camera offset to apply when aiming this item. Only valid if Aimable is set to true.")]
+        public float CameraAimOffset { get; set; }
+
         [Serialize(false, IsPropertySaveable.No, description: "Should the character adjust its pose when aiming with the item. Most noticeable underwater, where the character will rotate its entire body to face the direction the item is aimed at.")]
         public bool ControlPose
         {
