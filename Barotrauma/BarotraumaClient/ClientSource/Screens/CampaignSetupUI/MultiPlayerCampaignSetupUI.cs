@@ -107,7 +107,7 @@ namespace Barotrauma
             if (GameMain.NetLobbyScreen.SelectedSub == null) { return false; }
             selectedSub = GameMain.NetLobbyScreen.SelectedSub;
 
-            if (selectedSub.SubmarineClass == SubmarineClass.Undefined)
+            if (selectedSub.Class == SubmarineClass.Undefined)
             {
                 new GUIMessageBox(TextManager.Get("error"), TextManager.Get("undefinedsubmarineselected"));
                 return false;

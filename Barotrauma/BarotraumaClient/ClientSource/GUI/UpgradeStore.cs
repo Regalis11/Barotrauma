@@ -1518,11 +1518,11 @@ namespace Barotrauma
             // submarine name
             new GUITextBlock(rectT(1, 0, submarineInfoFrame), submarine.Info.DisplayName, textAlignment: Alignment.Right, font: GUIStyle.LargeFont);
 
-            LocalizedString classText = $"{TextManager.GetWithVariable("submarineclass.classsuffixformat", "[type]", TextManager.Get($"submarineclass.{submarine.Info.SubmarineClass}"))}";
+            LocalizedString classText = $"{TextManager.GetWithVariable("submarineclass.classsuffixformat", "[type]", submarine.Info.Class.Name)}";
             // submarine class + tier
             new GUITextBlock(rectT(1.0f, 0.15f, submarineInfoFrame), classText, textAlignment: Alignment.Right, font: GUIStyle.Font)
             {
-                ToolTip = TextManager.Get("submarineclass.description") + "\n\n" + TextManager.Get($"submarineclass.{submarine.Info.SubmarineClass}.description")
+                ToolTip = TextManager.Get("submarineclass.description") + "\n\n" + submarine.Info.Class.Description
             };
             new GUITextBlock(rectT(1.0f, 0.15f, submarineInfoFrame), TextManager.Get($"submarinetier.{submarine.Info.Tier}"), textAlignment: Alignment.Right, font: GUIStyle.Font)
             {

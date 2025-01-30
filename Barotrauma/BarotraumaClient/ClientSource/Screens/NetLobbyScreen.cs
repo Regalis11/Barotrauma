@@ -3147,7 +3147,7 @@ namespace Barotrauma
                     CanBeFocused = false
                 };
                 new GUITextBlock(new RectTransform(new Vector2(1.0f, 0.5f), infoContainer.RectTransform),
-                    TextManager.Get($"submarineclass.{sub.SubmarineClass}"), textAlignment: Alignment.TopRight, font: GUIStyle.SmallFont)
+                    sub.Class.Name, textAlignment: Alignment.TopRight, font: GUIStyle.SmallFont)
                 {
                     Padding = Vector4.Zero,
                     UserData = "classtext",

@@ -177,7 +177,7 @@ namespace Barotrauma
                 Vector2 position = Submarine.MainSubs[i].SubBody != null ? Submarine.MainSubs[i].WorldPosition : Submarine.MainSubs[i].HiddenSubPosition;
                 
                 Color indicatorColor = i == 0 ? Color.LightBlue * 0.5f : GUIStyle.Red * 0.5f;
-                Sprite displaySprite = Submarine.MainSubs[i].Info.HasTag(SubmarineTag.Shuttle) ? shuttleSprite : subLocationSprite;
+                Sprite displaySprite = Submarine.MainSubs[i].Info.HasTag(SubmarineTag.Shuttle) ? shuttleSprite : Submarine.MainSubs[i].Info.Class.LocationIndicator ?? subLocationSprite;
                 if (displaySprite != null)
                 {
                     GUI.DrawIndicator(
@@ -234,11 +234,10 @@ namespace Barotrauma
                     SubmarineType.Wreck => wreckSprite,
                     SubmarineType.BeaconStation => beaconSprite,
                     SubmarineType.Ruin => ruinSprite,
-                    _ => subLocationSprite
+                    _ => submarine.Info.Class?.LocationIndicator ?? subLocationSprite
                 };
-                
-                // use a little dimmer color for transports
-                if (submarine.Info.SubmarineClass == SubmarineClass.Transport) { indicatorColor *= 0.75f; }
+
+                indicatorColor *= displaySprite.Color.A / 255f;
                 
                 if (displaySprite != null)
                 {

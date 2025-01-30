@@ -64,6 +64,15 @@
 
   <ItemGroup Condition="'$(Configuration)'!='Debug'">
     <Content Include="..\BarotraumaShared\**\*" CopyToOutputDirectory="PreserveNewest" Exclude="..\BarotraumaShared\Data\Saves\*.save;..\BarotraumaShared\ModLists\*.xml;..\BarotraumaShared\LocalMods\[DebugOnlyTest]*\**" />
+    <Content Update="..\BarotraumaShared\LocalMods\more-sub-classes\filelist.xml">
+      <Link>LocalMods\more-sub-classes\filelist.xml</Link>
+    </Content>
+    <Content Update="..\BarotraumaShared\LocalMods\more-sub-classes\UpgradeModules.xml">
+      <Link>LocalMods\more-sub-classes\UpgradeModules.xml</Link>
+    </Content>
+    <Content Update="..\BarotraumaShared\LocalMods\more-sub-classes\UpgradeModules.xml">
+      <Link>LocalMods\more-sub-classes\UpgradeModules.xml</Link>
+    </Content>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
     <Content Include="..\BarotraumaShared\**\*" CopyToOutputDirectory="PreserveNewest" />

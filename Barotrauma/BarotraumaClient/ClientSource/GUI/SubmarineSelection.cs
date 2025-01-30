@@ -383,8 +383,8 @@ namespace Barotrauma
 
                     submarineDisplays[i].submarineName.Text = subToDisplay.DisplayName;                    
                     
-                    submarineDisplays[i].submarineClass.Text = TextManager.GetWithVariable("submarineclass.classsuffixformat", "[type]", TextManager.Get($"submarineclass.{subToDisplay.SubmarineClass}"));
-                    submarineDisplays[i].submarineClass.ToolTip = TextManager.Get("submarineclass.description") + "\n\n" + TextManager.Get($"submarineclass.{subToDisplay.SubmarineClass}.description"); 
+                    submarineDisplays[i].submarineClass.Text = TextManager.GetWithVariable("submarineclass.classsuffixformat", "[type]", subToDisplay.Class.Name);
+                    submarineDisplays[i].submarineClass.ToolTip = TextManager.Get("submarineclass.description") + "\n\n" + subToDisplay.Class.Description; 
 
                     submarineDisplays[i].submarineTier.Text = TextManager.Get($"submarinetier.{subToDisplay.Tier}");
                     submarineDisplays[i].submarineTier.ToolTip = TextManager.Get("submarinetier.description");

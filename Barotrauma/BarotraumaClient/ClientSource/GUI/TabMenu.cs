@@ -1769,7 +1769,7 @@ namespace Barotrauma
 
             LocalizedString className = !sub.Info.HasTag(SubmarineTag.Shuttle) ?
                 TextManager.GetWithVariables("submarine.classandtier", 
-                    ("[class]", TextManager.Get($"submarineclass.{sub.Info.SubmarineClass}")),
+                    ("[class]", sub.Info.Class.Name),
                     ("[tier]", TextManager.Get($"submarinetier.{sub.Info.Tier}"))) :
                 TextManager.Get("shuttle");
 

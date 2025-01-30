@@ -77,7 +77,7 @@ namespace Barotrauma
 
     abstract class UpgradeContentPrefab : Prefab
     {
-        public static readonly PrefabCollection<UpgradeContentPrefab> PrefabsAndCategories = new PrefabCollection<UpgradeContentPrefab>(
+        public static readonly PrefabCollection<UpgradeContentPrefab> AllPrefabs = new PrefabCollection<UpgradeContentPrefab>(
             onAdd: (prefab, isOverride) =>
             {
                 if (prefab is UpgradePrefab upgradePrefab)
@@ -87,6 +87,10 @@ namespace Barotrauma
                 else if (prefab is UpgradeCategory upgradeCategory)
                 {
                     UpgradeCategory.Categories.Add(upgradeCategory, isOverride);
+                }
+                else if (prefab is SubmarineClass submarineClass)
+                {
+                    SubmarineClass.Classes.Add(submarineClass, isOverride);
                 }
             },
             onRemove: (prefab) =>
@@ -99,24 +103,84 @@ namespace Barotrauma
                 {
                     UpgradeCategory.Categories.Remove(upgradeCategory);
                 }
+                else if (prefab is SubmarineClass submarineClass)
+                {
+                    SubmarineClass.Classes.Remove(submarineClass);
+                }
             },
             onSort: () =>
             {
                 UpgradePrefab.Prefabs.SortAll();
                 UpgradeCategory.Categories.SortAll();
+                SubmarineClass.Classes.SortAll();
             },
             onAddOverrideFile: (file) =>
             {
                 UpgradePrefab.Prefabs.AddOverrideFile(file);
                 UpgradeCategory.Categories.AddOverrideFile(file);
+                SubmarineClass.Classes.AddOverrideFile(file);
             },
             onRemoveOverrideFile: (file) =>
             {
                 UpgradePrefab.Prefabs.RemoveOverrideFile(file);
                 UpgradeCategory.Categories.RemoveOverrideFile(file);
+                SubmarineClass.Classes.RemoveOverrideFile(file);
             });
 
         public UpgradeContentPrefab(ContentXElement element, UpgradeModulesFile file) : base(file, element) { }
+    }
+
+    internal partial class SubmarineClass : UpgradeContentPrefab
+    {
+        public static readonly PrefabCollection<SubmarineClass> Classes = new();
+        
+        public static Identifier UndefinedIdentifier = new("undefined");
+        public static SubmarineClass Undefined => Classes[UndefinedIdentifier];
+
+        public readonly ImmutableHashSet<Identifier> AltIdentifiers;
+        public readonly Identifier TextIdentifier;
+        public readonly LocalizedString Name, Description;
+        public readonly bool Purchasable, UsableInCampaign;
+        
+        public SubmarineClass(ContentXElement element, UpgradeModulesFile file) : base(element, file)
+        {
+            AltIdentifiers = element.GetAttributeIdentifierArray(Array.Empty<Identifier>(), "altidentifiers", "altidentifier", "oldidentifiers", "oldidentifier").ToImmutableHashSet();
+            
+            TextIdentifier = element.GetAttributeIdentifier("textidentifier", Identifier);
+            Name = TextManager.Get($"SubmarineClass.{TextIdentifier}").Fallback(element.GetAttributeString("name", Identifier.Value));
+            Description = TextManager.Get($"SubmarineClass.{TextIdentifier}.Description").Fallback(element.GetAttributeString("description", ""));
+            
+            Purchasable = element.GetAttributeBool("purchasable", true);
+            UsableInCampaign = element.GetAttributeBool("usableincampaign", true);
+
+#if CLIENT
+            foreach (ContentXElement subElement in element.Elements())
+            {
+                switch (subElement.Name.ToString().ToLowerInvariant())
+                {
+                    case "locationindicator":
+                    {
+                        LocationIndicator = new Sprite(subElement);
+                        break;
+                    }
+                    case "availabilityicon":
+                    {
+                        AvailabilityIcon = new Sprite(subElement);
+                        break;
+                    }
+                }
+            }
+#endif
+        }
+
+        public static SubmarineClass? Find(Identifier identifier)
+        {
+            if (identifier.IsEmpty) { return null; }
+            if (Classes.TryGet(identifier, out SubmarineClass? submarineClass)) { return submarineClass; }
+            return Classes.Find(subClass => subClass.AltIdentifiers.Contains(identifier));
+        }
+        
+        public override void Dispose() { }
     }
 
     internal class UpgradeCategory : UpgradeContentPrefab
@@ -201,7 +265,7 @@ namespace Barotrauma
             Set
         }
 
-        private readonly Either<SubmarineClass, int> tierOrClass;
+        private readonly Either<Identifier, int> tierOrClass;
         private readonly int value;
         private readonly MaxLevelModType type;
 
@@ -230,9 +294,9 @@ namespace Barotrauma
                 return subTier == tier;
             }
 
-            if (tierOrClass.TryGet(out SubmarineClass targetClass))
+            if (tierOrClass.TryGet(out Identifier targetClass))
             {
-                return subClass == targetClass;
+                return subClass.Identifier == targetClass;
             }
 
             return false;
@@ -242,9 +306,9 @@ namespace Barotrauma
         {
             bool isValid = true;
 
-            SubmarineClass subClass = element.GetAttributeEnum("class", SubmarineClass.Undefined);
+            Identifier subClass = element.GetAttributeIdentifier("class", Identifier.Empty);
             int tier = element.GetAttributeInt("tier", 0);
-            if (subClass != SubmarineClass.Undefined)
+            if (subClass != Identifier.Empty)
             {
                 tierOrClass = subClass;
             }
@@ -566,7 +630,7 @@ namespace Barotrauma
 
             foreach (UpgradeMaxLevelMod mod in MaxLevelsMods)
             {
-                if (mod.AppliesTo(info.SubmarineClass, tier)) { level = mod.GetLevelAfter(level); }
+                if (mod.AppliesTo(info.Class, tier)) { level = mod.GetLevelAfter(level); }
             }
 
             return level;

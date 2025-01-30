@@ -1913,7 +1913,7 @@ namespace Barotrauma
             element.Add(new XAttribute("ismanuallyoutfitted", Info.IsManuallyOutfitted));
             if (Info.IsPlayer && !Info.HasTag(SubmarineTag.Shuttle))
             {
-                element.Add(new XAttribute("class", Info.SubmarineClass.ToString()));
+                element.Add(new XAttribute("class", Info.Class.Identifier));
             }
             element.Add(new XAttribute("tags", Info.Tags.ToString()));
             element.Add(new XAttribute("outposttags", Info.OutpostTags.ConvertToString()));

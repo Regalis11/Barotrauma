@@ -9,18 +9,23 @@ namespace Barotrauma
 
         protected override bool MatchesSingular(Identifier identifier) =>
             identifier == "upgrademodule" ||
+            identifier == "submarineclass" ||
             identifier == "upgradecategory";
 
         protected override bool MatchesPlural(Identifier identifier) =>
             identifier == "upgrademodules";
 
-        protected override PrefabCollection<UpgradeContentPrefab> Prefabs => UpgradeContentPrefab.PrefabsAndCategories;
+        protected override PrefabCollection<UpgradeContentPrefab> Prefabs => UpgradeContentPrefab.AllPrefabs;
         protected override UpgradeContentPrefab CreatePrefab(ContentXElement element)
         {
             Identifier elemName = element.NameAsIdentifier();
             if (elemName == "upgradecategory")
             {
                 return new UpgradeCategory(element, this);
+            }
+            else if (elemName == "submarineclass")
+            {
+                return new SubmarineClass(element, this);
             }
             else
             {

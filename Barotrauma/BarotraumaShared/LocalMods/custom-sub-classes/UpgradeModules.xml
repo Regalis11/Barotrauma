@@ -1,0 +1,17 @@
+<UpgradeModules>
+  <SubmarineClass identifier="undefined" purchasable="false" usableincampaign="false">
+    <LocationIndicator texture="Content/UI/UIPositionIndicators.png" sourcerect="0,0,128,128"/>
+  </SubmarineClass>
+  <SubmarineClass identifier="scout" altidentifier="deepdiver">
+    <LocationIndicator texture="Content/UI/UIPositionIndicators.png" sourcerect="0,0,128,128"/>
+    <AvailabilityIcon texture="Content/Map/MapAtlas.png" sourcerect="124,798,48,28" color="gui.blue"/>
+  </SubmarineClass>
+  <SubmarineClass identifier="attack">
+    <LocationIndicator texture="Content/UI/UIPositionIndicators.png" sourcerect="0,0,128,128"/>
+    <AvailabilityIcon texture="Content/Map/MapAtlas.png" sourcerect="124,798,48,28" color="gui.red"/>
+  </SubmarineClass>
+  <SubmarineClass identifier="transport">
+    <LocationIndicator texture="Content/UI/UIPositionIndicators.png" sourcerect="0,0,128,128" color="255,255,255,191"/>
+    <AvailabilityIcon texture="Content/Map/MapAtlas.png" sourcerect="124,798,48,28" color="gui.orange"/>
+  </SubmarineClass>
+</UpgradeModules>

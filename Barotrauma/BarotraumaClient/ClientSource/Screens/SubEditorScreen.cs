@@ -1824,7 +1824,7 @@ namespace Barotrauma
                     MainSub.Info.PreviewImage = null;
                 }
             }
-            else if (MainSub.Info.SubmarineClass == SubmarineClass.Undefined && !MainSub.Info.HasTag(SubmarineTag.Shuttle))
+            else if (MainSub.Info.Class == SubmarineClass.Undefined && !MainSub.Info.HasTag(SubmarineTag.Shuttle))
             {
                 var msgBox = new GUIMessageBox(TextManager.Get("warning"), TextManager.Get("undefinedsubmarineclasswarning"), new LocalizedString[] { TextManager.Get("yes"), TextManager.Get("no") });
 
@@ -2726,9 +2726,9 @@ namespace Barotrauma
             };
             GUIDropDown classDropDown = new GUIDropDown(new RectTransform(new Vector2(0.4f, 1.0f), classGroup.RectTransform));
             classDropDown.RectTransform.MinSize = new Point(0, subTypeContainer.RectTransform.Children.Max(c => c.MinSize.Y));
-            foreach (SubmarineClass subClass in Enum.GetValues(typeof(SubmarineClass)))
+            foreach (SubmarineClass subClass in SubmarineClass.Classes)
             {
-                classDropDown.AddItem(TextManager.Get($"{nameof(SubmarineClass)}.{subClass}"), subClass, toolTip: TextManager.Get($"submarineclass.{subClass}.description"));
+                classDropDown.AddItem(subClass.Name, subClass, toolTip: subClass.Description);
             }
             classDropDown.AddItem(TextManager.Get(nameof(SubmarineTag.Shuttle)), SubmarineTag.Shuttle);
             classDropDown.OnSelected += (selected, userdata) =>
@@ -2737,16 +2737,17 @@ namespace Barotrauma
                 {
                     case SubmarineClass submarineClass:
                         MainSub.Info.RemoveTag(SubmarineTag.Shuttle);
-                        MainSub.Info.SubmarineClass = submarineClass;
+                        MainSub.Info.Class = submarineClass;
                         break;
                     case SubmarineTag.Shuttle:
                         MainSub.Info.AddTag(SubmarineTag.Shuttle);
-                        MainSub.Info.SubmarineClass = SubmarineClass.Undefined;
+                        MainSub.Info.Class = SubmarineClass.Undefined;
                         break;
                 }
                 return true;
             };
-            classDropDown.SelectItem(!MainSub.Info.HasTag(SubmarineTag.Shuttle) ? MainSub.Info.SubmarineClass : (object)SubmarineTag.Shuttle);
+            classDropDown.ListBox.Content.FindChild(SubmarineClass.Undefined).SetAsFirstChild();
+            classDropDown.SelectItem(!MainSub.Info.HasTag(SubmarineTag.Shuttle) ? MainSub.Info.Class : (object)SubmarineTag.Shuttle);
 
             var tierGroup = new GUILayoutGroup(new RectTransform(new Vector2(1.0f, 0.05f), subSettingsContainer.RectTransform), isHorizontal: true)
             {
@@ -3590,7 +3591,7 @@ namespace Barotrauma
                 else if (sub.IsPlayer)
                 {
                     var classText = new GUITextBlock(new RectTransform(new Vector2(0.2f, 1.0f), textBlock.RectTransform, Anchor.CenterRight),
-                    TextManager.Get($"submarineclass.{sub.SubmarineClass}"), textAlignment: Alignment.CenterRight, font: GUIStyle.SmallFont)
+                    sub.Class.Name, textAlignment: Alignment.CenterRight, font: GUIStyle.SmallFont)
                     {
                         TextColor = textBlock.TextColor * 0.8f,
                         ToolTip = textBlock.ToolTip.SanitizedString

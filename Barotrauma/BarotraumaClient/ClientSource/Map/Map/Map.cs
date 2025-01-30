@@ -396,9 +396,8 @@ namespace Barotrauma
             if (location.CanHaveSubsForSale())
             {
                 overrideTiers = new List<(SubmarineClass subClass, int tier)>();
-                foreach (SubmarineClass subClass in Enum.GetValues(typeof(SubmarineClass)))
+                foreach (SubmarineClass subClass in SubmarineClass.Classes)
                 {
-                    if (subClass == SubmarineClass.Undefined) { continue; }
                     int highestClassTier = location.HighestSubmarineTierAvailable(subClass);
                     if (highestClassTier > 0 && highestClassTier > highestSubTier)
                     {
@@ -414,7 +413,8 @@ namespace Barotrauma
             {
                 foreach (var (subClass, tier) in overrideTiers)
                 {
-                    CreateTextWithIcon(TextManager.GetWithVariable($"advancedsub.{subClass}", "[tiernumber]", tier.ToString()), icon: null, style: "LocationOverlaySubmarineIcon");
+                    string textTag = $"advancedsub.{subClass.TextIdentifier.IfEmpty(in subClass.Identifier)}";
+                    CreateTextWithIcon(TextManager.GetWithVariable(textTag, "[tiernumber]", tier.ToString()), icon: subClass.AvailabilityIcon, style: "LocationOverlaySubmarineIcon");
                 }
             }
 
@@ -428,8 +428,8 @@ namespace Barotrauma
                     CanBeFocused = true
                 };
                 var guiIcon =
-                    style == null ? 
-                    new GUIImage(new RectTransform(Vector2.One * 1.25f, textHolder.RectTransform, scaleBasis: ScaleBasis.BothHeight), icon) :
+                    icon != null ? 
+                    new GUIImage(new RectTransform(Vector2.One * 1.25f, textHolder.RectTransform, scaleBasis: ScaleBasis.BothHeight), icon, scaleToFit: true) { Color = icon.Color } :
                     new GUIImage(new RectTransform(Vector2.One * 1.25f, textHolder.RectTransform, scaleBasis: ScaleBasis.BothHeight), style);
                 var textBlock = new GUITextBlock(new RectTransform(new Vector2(0.9f, 1.0f), textHolder.RectTransform), text);
                 textBlock.RectTransform.MinSize = new Point((int)textBlock.TextSize.X, 0);

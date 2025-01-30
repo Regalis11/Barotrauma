@@ -29,10 +29,7 @@ namespace Barotrauma
         private readonly SubmarineAvailability? submarineAvailability;
         private readonly ImmutableHashSet<SubmarineAvailability> submarineAvailabilityOverrides;
 
-        public readonly record struct SubmarineAvailability(
-            Identifier LocationType,
-            SubmarineClass Class = SubmarineClass.Undefined,
-            int MaxTier = 0);
+        public readonly record struct SubmarineAvailability(Identifier LocationType, Identifier Class, int MaxTier = 0);
 
         public Biome(ContentXElement element, LevelGenerationParametersFile file) : base(file, ParseIdentifier(element))
         {
@@ -73,7 +70,7 @@ namespace Barotrauma
             {
                 return new SubmarineAvailability(
                     LocationType: element.GetAttributeIdentifier("locationtype", Identifier.Empty),
-                    Class: element.GetAttributeEnum("class", SubmarineClass.Undefined),
+                    Class: element.GetAttributeIdentifier("class", Identifier.Empty),
                     MaxTier: element.GetAttributeInt("maxtier", 0));
             }
         }
@@ -89,30 +86,24 @@ namespace Barotrauma
             return identifier;
         }
 
-        public int HighestSubmarineTierAvailable(SubmarineClass subClass, Identifier locationType)
+        public int HighestSubmarineTierAvailable(SubmarineClass submarineClass, Identifier locationType)
         {
+            if (submarineClass is { Purchasable: false }) { return 0; }
             if (!submarineAvailability.HasValue)
             {
                 // If the availability is not explicitly defined, make all subs available
                 return SubmarineInfo.HighestTier;
             }
-            int maxTier = submarineAvailability.Value.MaxTier;
-            if (submarineAvailabilityOverrides.FirstOrNull(a => a.LocationType == locationType && a.Class == subClass) is SubmarineAvailability locationAndClassOverride)
-            {
-                maxTier = locationAndClassOverride.MaxTier;
-            }
-            else if (submarineAvailabilityOverrides.FirstOrNull(a => a.LocationType == locationType && a.Class == SubmarineClass.Undefined) is SubmarineAvailability locationOverride)
-            {
-                maxTier = locationOverride.MaxTier;
-            }
-            else if (submarineAvailabilityOverrides.FirstOrNull(a => a.LocationType == Identifier.Empty && a.Class == subClass) is SubmarineAvailability classOverride)
-            {
-                maxTier = classOverride.MaxTier;
-            }
-            return maxTier;
+
+            SubmarineAvailability? locationOverride = submarineAvailabilityOverrides.FirstOrNull(a => a.LocationType == locationType && a.Class == Identifier.Empty);
+            if (submarineClass == null) { return locationOverride?.MaxTier ?? submarineAvailability.Value.MaxTier; }
+            
+            SubmarineAvailability? locationAndClassOverride = submarineAvailabilityOverrides.FirstOrNull(a => a.LocationType == locationType && a.Class == submarineClass.Identifier);
+            SubmarineAvailability? classOverride = submarineAvailabilityOverrides.FirstOrNull(a => a.LocationType == Identifier.Empty && a.Class == submarineClass.Identifier);
+            return locationAndClassOverride?.MaxTier ?? locationOverride?.MaxTier ?? classOverride?.MaxTier ?? submarineAvailability.Value.MaxTier;
         }
 
-        public bool IsSubmarineAvailable(SubmarineInfo info, Identifier locationType) => info.Tier <= HighestSubmarineTierAvailable(info.SubmarineClass, locationType);
+        public bool IsSubmarineAvailable(SubmarineInfo info, Identifier locationType) => info.Tier <= HighestSubmarineTierAvailable(info.Class, locationType);
 
         public override void Dispose() { }
     }

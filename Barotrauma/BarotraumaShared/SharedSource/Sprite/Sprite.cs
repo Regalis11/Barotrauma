@@ -101,6 +101,8 @@ namespace Barotrauma
         public Identifier EntityIdentifier { get; set; }
         public string Name { get; set; }
 
+        public Color Color { get; set; }
+        
         partial void LoadTexture(ref Vector4 sourceVector, ref bool shouldReturn);
 
         partial void CalculateSourceRect();
@@ -144,6 +146,7 @@ namespace Barotrauma
             size.Y *= sourceRect.Height;
             RelativeOrigin = SourceElement.GetAttributeVector2("origin", new Vector2(0.5f, 0.5f));
             Depth = SourceElement.GetAttributeFloat("depth", 0.001f);
+            Color = SourceElement.GetAttributeColor("color", Color.White);
 #if CLIENT
             AddToList(this);
 #endif

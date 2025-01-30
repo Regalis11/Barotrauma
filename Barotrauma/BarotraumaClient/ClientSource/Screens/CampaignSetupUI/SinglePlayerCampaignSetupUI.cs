@@ -396,7 +396,7 @@ namespace Barotrauma
             if (subList.SelectedData is not SubmarineInfo) { return false; }
             selectedSub = subList.SelectedData as SubmarineInfo;
             
-            if (selectedSub.SubmarineClass == SubmarineClass.Undefined)
+            if (selectedSub.Class == SubmarineClass.Undefined)
             {
                 new GUIMessageBox(TextManager.Get("error"), TextManager.Get("undefinedsubmarineselected"));
                 return false;
@@ -549,7 +549,7 @@ namespace Barotrauma
                     ToolTip = textBlock.ToolTip
                 };
                 new GUITextBlock(new RectTransform(new Vector2(1.0f, 0.5f), infoContainer.RectTransform),
-                    TextManager.Get($"submarineclass.{sub.SubmarineClass}"), textAlignment: Alignment.TopRight, font: GUIStyle.SmallFont)
+                    sub.Class.Name, textAlignment: Alignment.TopRight, font: GUIStyle.SmallFont)
                 {
                     TextColor = textBlock.TextColor * 0.8f,
                     ToolTip = textBlock.ToolTip

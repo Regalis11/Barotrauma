@@ -99,7 +99,7 @@ namespace Barotrauma
             float rightPanelWidth = 0.4f / leftPanelWidth;
             LocalizedString className = !HasTag(SubmarineTag.Shuttle) ?
                 TextManager.GetWithVariables("submarine.classandtier",
-                    ("[class]", TextManager.Get($"submarineclass.{SubmarineClass}")),
+                    ("[class]", Class.Name),
                     ("[tier]", TextManager.Get($"submarinetier.{Tier}"))) :
                 TextManager.Get("shuttle");
 
@@ -121,7 +121,7 @@ namespace Barotrauma
             {
                 submarineClassText = new GUITextBlock(new RectTransform(new Point(leftPanelWidthInt, classHeight), parent.Content.RectTransform), className, textAlignment: Alignment.CenterLeft, font: GUIStyle.SubHeadingFont)
                 {
-                    ToolTip = TextManager.Get("submarinetierandclass.description")+"\n\n"+ TextManager.Get($"submarineclass.{SubmarineClass}.description")
+                    ToolTip = TextManager.Get("submarinetierandclass.description")+"\n\n"+ Class.Description
                 };
                 submarineClassText.HoverColor = Color.Transparent;
                 submarineClassText.RectTransform.MinSize = new Point(0, (int)submarineClassText.TextSize.Y);

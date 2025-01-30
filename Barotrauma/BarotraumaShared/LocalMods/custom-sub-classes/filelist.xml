@@ -1,0 +1,3 @@
+<contentpackage name="custom-sub-classes" corepackage="False" modversion="1.0.0" gameversion="1.7.7.0">
+  <UpgradeModules file="%ModDir%/UpgradeModules.xml"/>
+</contentpackage>
