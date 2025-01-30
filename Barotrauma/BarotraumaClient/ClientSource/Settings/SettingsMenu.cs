@@ -178,7 +178,12 @@ namespace Barotrauma
         {
             new GUIFrame(new RectTransform((1.0f, 0.03f), parent.RectTransform, Anchor.CenterLeft), style: null);
         }
-        
+
+        private static void Divider(GUILayoutGroup parent)
+        {
+            new GUICustomComponent(new RectTransform((1.0f, 0.03f), parent.RectTransform, Anchor.CenterLeft), onDraw: (sb, c) => sb.DrawLine((c.Rect.Left, c.Rect.Center.Y), (c.Rect.Right, c.Rect.Center.Y), GUIStyle.TextColorDim, 2f));
+        }
+
         private static GUITextBlock Label(GUILayoutGroup parent, LocalizedString str, GUIFont font)
         {
             return new GUITextBlock(NewItemRectT(parent), str, font: font);
@@ -286,8 +291,11 @@ namespace Barotrauma
 
             Tickbox(left, TextManager.Get("EnableVSync"), TextManager.Get("EnableVSyncTooltip"), unsavedConfig.Graphics.VSync, v => unsavedConfig.Graphics.VSync = v);
             Tickbox(left, TextManager.Get("EnableTextureCompression"), TextManager.Get("EnableTextureCompressionTooltip"), unsavedConfig.Graphics.CompressTextures, v => unsavedConfig.Graphics.CompressTextures = v);
-            Spacer(right);  
-            
+            Divider(left);
+
+            Label(left, TextManager.Get("ScreenShake"), GUIStyle.SubHeadingFont);
+            Slider(left, (0.0f, 1.0f), 11, v => TextManager.GetWithVariable("percentageformat", "[value]", Round(v * 100).ToString()).Value, unsavedConfig.Graphics.ScreenShake, v => unsavedConfig.Graphics.ScreenShake = v);
+
             Label(right, TextManager.Get("LOSEffect"), GUIStyle.SubHeadingFont);
             DropdownEnum(right, (m) => TextManager.Get($"LosMode{m}"), null, unsavedConfig.Graphics.LosMode, v => unsavedConfig.Graphics.LosMode = v);
             Spacer(right);
