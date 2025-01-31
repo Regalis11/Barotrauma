@@ -1,0 +1,39 @@
+<Character speciesname="Peanut" humanoid="False" blooddecal="blood" group="human" husk="False" needsair="False" canspeak="True" noise="100" visiblity="100" eatingspeed="5" displayname="" visibility="100" pathfinderpriority="1" hasinfo="False" usehuskappendage="False" speciestranslationoverride="" needswater="False" bleedparticleair="blooddrop" bleedparticlewater="waterblood" hideinsonar="False" sonardisruption="0" soundinterval="30">
+  <ragdolls folder="default" />
+  <animations folder="default" />
+  <damageemitter particle="gib" drawontop="True" particleamount="10" velocitymin="50" velocitymax="300" anglemin="0" anglemax="360" scalemin="0.25" scalemax="0.5" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+  <bloodemitter particle="blood" particleamount="10" anglemin="0" anglemax="0" scalemin="1" scalemax="1" velocitymin="0" velocitymax="0" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+  <bloodemitter particle="waterblood" particleamount="1" anglemin="0" anglemax="0" scalemin="1" scalemax="1" velocitymin="0" velocitymax="0" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+  <gibemitter particle="gib" particleamount="20" velocitymin="200" velocitymax="700" anglemin="0" anglemax="360" scalemin="1" scalemax="1" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+  <health vitality="30" doesbleed="True" crushdepth="Infinity" usehealthwindow="False" bleedingreduction="0.2" burnreduction="0" constanthealthregeneration="0" healthregenerationwheneating="10" poisonvulnerability="3">
+    <Limb name="Torso" />
+  </health>
+  <Inventory slots="Any, Any" accessiblewhenalive="True" commonness="1" />
+  <ai combatstrength="10" sight="1" hearing="1" fleehealththreshold="0" aggressiveboarding="False" aggressiongreed="10" aggressionhurt="200" attackwhenprovoked="False" avoidgunfire="True" enforceaggressivebehaviorformissions="False" targetouterwalls="False" randomattack="False" avoidtime="3" minfleetime="20">
+    <target tag="human" state="Freeze" priority="800" reactdistance="0" attackdistance="0" timer="0" />
+    <target tag="stronger" state="Avoid" priority="10" reactdistance="1000" attackdistance="0" timer="0" />
+    <target tag="weaker" state="Avoid" priority="10" reactdistance="1000" attackdistance="0" timer="0" />
+    <petbehavior maxhappiness="100" unhappythreshold="50" happythreshold="80" happinessdecreaserate="0.035" hungerincreaserate="0.03" playforce="6.0">
+      <eat tag="petfood1" ignorecontained="true" requiredhunger="30-100" hunger="-50" happiness="5" priority="100" />
+      <eat tag="dead" requiredhunger="70-100" hunger="-100" happiness="10" priority="100" />
+      <itemproduction rate="0.0" invhungerrate="0.002" requiredhunger="0-30">
+        <item identifier="poop" commonness="100" />
+      </itemproduction>
+      <itemproduction rate="0.0015" requiredhappiness="50-100" requiredhunger="0-30">
+        <item identifier="mucusball" />
+      </itemproduction>
+      <itemproduction rate="0.0015" requiredhappiness="80-100" requiredhunger="0-30">
+        <item identifier="peanutegg" commonness="30" />
+        <item identifier="" commonness="70" />
+      </itemproduction>
+    </petbehavior>
+  </ai>
+  <sound file="Content/Characters/Peanut/PEANUT_idle1.ogg" state="Idle" range="1000" volume="1" />
+  <sound file="Content/Characters/Peanut/PEANUT_idle2.ogg" state="Idle" range="1000" volume="1" />
+  <sound file="Content/Characters/Peanut/PEANUT_takeDamage1.ogg" state="Damage" range="1000" volume="1" />
+  <sound file="Content/Characters/Peanut/PEANUT_takeDamage2.ogg" state="Damage" range="1000" volume="1" />
+  <sound file="Content/Characters/Peanut/PEANUT_takeDamage1.ogg" state="Die" range="2000" volume="1" frequencymultiplier="1.5" />
+  <sound file="Content/Characters/Peanut/PEANUT_takeDamage2.ogg" state="Die" range="2000" volume="1" frequencymultiplier="1.5" />
+  <sound file="Content/Characters/Peanut/PEANUT_positive.ogg" state="Happy" range="1000" volume="1" />
+  <sound file="Content/Characters/Peanut/PEANUT_negative.ogg" state="Unhappy" range="1000" volume="1" />
+</Character>

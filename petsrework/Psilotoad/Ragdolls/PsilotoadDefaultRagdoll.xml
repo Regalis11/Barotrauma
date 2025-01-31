@@ -1,0 +1,39 @@
+﻿<Ragdoll type="peanut" Texture="Content/Characters/Pets/pets.png" Color="255,255,255,255" SpritesheetOrientation="90" LimbScale="0.4686" JointScale="0.4686" TextureScale="1" ColliderHeightFromFloor="15" ImpactTolerance="20" CanEnterSubmarine="True" CanWalk="True" Draggable="True" MainLimb="Torso">
+  <collider Name="Main Collider" Radius="40" Height="20" Width="0" BodyType="Dynamic" />
+  <!-- main torso -->
+  <limb Name="Torso" ID="0" Type="Torso" Notes="" Scale="1" Flip="True" MirrorVertically="False" MirrorHorizontally="False" Hide="False" SpriteOrientation="NaN" InheritLimbDepth="None" SteerForce="0.1" Radius="30" Height="0" Width="25" Density="10" IgnoreCollisions="False" AngularDamping="7" AttackPriority="1" MinSeveranceDamage="1" CanBeSeveredAlive="True" SeveredFadeOutTime="20" HealthIndex="0" Friction="0.3" Restitution="0.05">
+    <deformablesprite subdivisions="5,5" SourceRect="100,181,84,71" Origin="0.5,0.5" Depth="0.2" Texture="" IgnoreTint="False" Color="255,255,255,255" DeadColor="150,150,150,255" DeadColorTime="5">
+      <spritedeformation type="bendjoint" typename="bendjoint" Sync="-1" BlendMode="Add" Strength="1" MaxRotation="90" UseMovementSine="False" StopWhenHostIsDead="True" OnlyInWater="False" SineOffset="0" Resolution="5,5" />
+      <spritedeformation type="inflate" resolution="5,5" frequency="1" scale="0.1" blendmode="Add" usemovementsine="True" stopwhenhostisdead="True" sync="-1" typename="inflate" strength="1" maxrotation="90" sineoffset="0" onlyinwater="False" />
+    </deformablesprite>
+    <attack stickchance="0" StructureSoundType="StructureSlash" Context="Ground" TargetType="Character" TargetLimbType="Torso" HitDetectionType="Distance" AfterAttack="PursueIfCanAttack" AfterAttackDelay="0" Reverse="False" SnapRopeOnNewAttack="True" Retreat="False" Range="200" DamageRange="100" MinRange="0" Duration="0.5" CoolDown="1" SecondaryCoolDown="0.01" CoolDownRandomFactor="0.25" FullSpeedAfterAttack="False" StructureDamage="0" EmitStructureDamageParticles="True" ItemDamage="0" Penetration="0" LevelWallDamage="0" Ranged="False" AvoidFriendlyFire="False" RequiredAngle="20" RequiredAngleToShoot="0" AimRotationTorque="0" RotationLimbIndex="-1" SwayAmount="0" SwayFrequency="5" Stun="0" OnlyHumans="False" ApplyForceOnLimbs="0" Force="10" RootForceWorldStart="0,0" RootForceWorldMiddle="1,0" RootForceWorldEnd="-1,-1" RootTransitionEasing="Smooth" Torque="0" ApplyForcesOnlyOnce="False" TargetImpulse="0" TargetImpulseWorld="0,0" TargetForce="20" TargetForceWorld="0,-1" SubmarineImpactMultiplier="1" SeverLimbsProbability="0.5" Priority="1" Blink="False">
+      <Affliction Strength="0.1" Identifier="stun" Probability="1" DivideByLimbCount="True" MultiplyByMaxVitality="False" />
+      <Affliction Strength="1" Identifier="bitewounds" Probability="1" DivideByLimbCount="True" MultiplyByMaxVitality="False" />
+    </attack>
+  </limb>
+  <limb Name="Tail" ID="1" Type="Tail" Notes="" Scale="1" Flip="True" MirrorVertically="False" MirrorHorizontally="False" Hide="False" SpriteOrientation="NaN" InheritLimbDepth="None" SteerForce="0" Radius="15" Height="0" Width="60" Density="5" IgnoreCollisions="False" AngularDamping="7" AttackPriority="1" MinSeveranceDamage="1" CanBeSeveredAlive="True" SeveredFadeOutTime="20" HealthIndex="0" Friction="0.3" Restitution="0.05">
+    <deformablesprite subdivisions="5,5" SourceRect="7,210,92,42" Origin="0.5,0.5" Depth="0.21" Texture="" IgnoreTint="False" Color="255,255,255,255" DeadColor="150,150,150,255" DeadColorTime="5">
+      <spritedeformation type="bendjoint" typename="bendjoint" Sync="-1" BlendMode="Add" Strength="1" MaxRotation="90" UseMovementSine="False" StopWhenHostIsDead="True" OnlyInWater="False" SineOffset="0" Resolution="5,5" />
+    </deformablesprite>
+  </limb>
+  <limb Name="Shell" ID="2" Type="None" Notes="" Scale="1" Flip="True" MirrorVertically="False" MirrorHorizontally="False" Hide="False" SpriteOrientation="NaN" InheritLimbDepth="None" SteerForce="0" Radius="25" Height="15" Width="25" Density="1" IgnoreCollisions="False" AngularDamping="7" AttackPriority="1" MinSeveranceDamage="1" CanBeSeveredAlive="False" SeveredFadeOutTime="20" HealthIndex="0" Friction="0.3" Restitution="0.05">
+    <deformablesprite subdivisions="5,5" SourceRect="0,130,67,60" Origin="0.5,0.5" Depth="0.19" Texture="" IgnoreTint="False" Color="255,255,255,255" DeadColor="150,150,150,255" DeadColorTime="5">
+    </deformablesprite>
+    <damagemodifier DamageSound="LimbArmor" DamageParticle="mudraptoreggbrownchunks" DamageMultiplier="0.25" ProbabilityMultiplier="1" ArmorSector="0,360" DeflectProjectiles="True" AfflictionIdentifiers="" AfflictionTypes="damage" />
+    <damagemodifier DamageSound="LimbArmor" DamageParticle="" DamageMultiplier="0" ProbabilityMultiplier="1" ArmorSector="0,360" DeflectProjectiles="True" AfflictionIdentifiers="" AfflictionTypes="bleeding" />
+    <damagemodifier DamageSound="" DamageParticle="" DamageMultiplier="0" ProbabilityMultiplier="1" ArmorSector="0,360" DeflectProjectiles="True" AfflictionIdentifiers="" AfflictionTypes="burn" />
+  </limb>
+  <limb Name="Head" ID="3" Type="Head" Notes="" Scale="1" Flip="True" MirrorVertically="False" MirrorHorizontally="False" Hide="False" SpriteOrientation="NaN" InheritLimbDepth="None" SteerForce="0" Radius="25" Height="0" Width="0" Density="10" IgnoreCollisions="False" AngularDamping="7" AttackPriority="1" MinSeveranceDamage="1" CanBeSeveredAlive="True" SeveredFadeOutTime="20" HealthIndex="0" Friction="0.3" Restitution="0.05">
+    <deformablesprite subdivisions="5,5" SourceRect="70,111,65,70" Origin="0.5,0.5" Depth="0.18" Texture="" IgnoreTint="False" Color="255,255,255,255" DeadColor="150,150,150,255" DeadColorTime="5" >
+      <spritedeformation type="bendjoint" typename="bendjoint" Sync="-1" BlendMode="Add" Strength="1" MaxRotation="90" UseMovementSine="False" StopWhenHostIsDead="True" OnlyInWater="False" SineOffset="0" Resolution="5,5" />
+    </deformablesprite>
+  </limb>
+  <limb Name="Eye Scar" ID="4" Type="None" Notes="" Scale="1" Flip="True" MirrorVertically="False" MirrorHorizontally="False" Hide="False" SpriteOrientation="NaN" InheritLimbDepth="None" SteerForce="0" Radius="8" Height="0" Width="0" Density="10" IgnoreCollisions="True" AngularDamping="7" AttackPriority="1" MinSeveranceDamage="1" CanBeSeveredAlive="True" SeveredFadeOutTime="20" HealthIndex="0" Friction="0.3" Restitution="0.05">
+    <sprite SourceRect="150,142,16,16" Origin="0.5,0.5" Depth="0.17" Texture="" IgnoreTint="False" Color="255,255,255,0" DeadColor="255,255,255,255" DeadColorTime="0.5" />
+  </limb>
+  <!-- Joints -->
+  <joint Name="Joint 0 - 1" Limb1="0" Limb2="1" Limb1Anchor="-30,-17" Limb2Anchor="30,0" CanBeSevered="True" SeveranceProbabilityModifier="0.25" BreakSound="gore" LimitEnabled="True" UpperLimit="15" LowerLimit="-50" Stiffness="0.1" Scale="1" WeldJoint="False" ClockWiseRotation="False" />
+  <joint Name="Joint 1 - 2" Limb1="0" Limb2="2" Limb1Anchor="-20,10" Limb2Anchor="0,0" CanBeSevered="True" SeveranceProbabilityModifier="0" BreakSound="gore" LimitEnabled="True" UpperLimit="6" LowerLimit="5" Stiffness="0" Scale="1" WeldJoint="True" ClockWiseRotation="False" />
+  <joint Name="Joint 0 - 3" Limb1="0" Limb2="3" Limb1Anchor="16,25" Limb2Anchor="-7,-24" CanBeSevered="True" SeveranceProbabilityModifier="0.5" BreakSound="gore" LimitEnabled="True" UpperLimit="10" LowerLimit="-30" Stiffness="0.1" Scale="1" WeldJoint="False" ClockWiseRotation="False" />
+  <joint Name="Joint 3 - 4" Limb1="3" Limb2="4" Limb1Anchor="-4,-4" Limb2Anchor="0,0" CanBeSevered="True" SeveranceProbabilityModifier="0" BreakSound="gore" LimitEnabled="True" UpperLimit="0" LowerLimit="0" Stiffness="0.25" Scale="1" WeldJoint="True" ClockWiseRotation="False" />
+</Ragdoll>

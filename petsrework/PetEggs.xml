@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Items>
+  <Item name="" identifier="peanutegg" nameidentifier="petegg" Tags="smallitem,monsterfood" hideinmenus="true" health="20" damagedbyexplosions="true" damagedbyprojectiles="true" damagedbymeleeweapons="true" damagedbyrepairtools="true" category="Misc" scale="0.5" impactsoundtag="impact_soft">
+    <PreferredContainer primary="crewcab"/>
+    <PreferredContainer secondary="abandonedstoragecab,piratestoragecab,wreckstoragecab" amount="1" spawnprobability="0.05" />
+    <Sprite texture="Content/Characters/Pets/pets.png" depth="0.7" sourcerect="265,5,43,55" origin="0.5,0.5" />
+    <Price baseprice="500" minleveldifficulty="15">
+      <Price storeidentifier="merchantoutpost" sold="false" />
+      <Price storeidentifier="merchantcity" multiplier="1.2"  />
+      <Price storeidentifier="merchantresearch" multiplier="1.4" minavailable="1" />
+      <Price storeidentifier="merchantmilitary" sold="false" />
+      <Price storeidentifier="merchantmine" sold="false" multiplier="0.75" />
+    </Price>
+    <Deconstruct time="10">
+      <Item identifier="alienblood" />
+      <Item identifier="alienblood" />
+      <Item identifier="adrenalinegland" />
+    </Deconstruct>
+    <Body radius="25" friction="1.0" restitution="0.01" angulardamping="0.8" density="11"/>
+    <Holdable slots="RightHand+LeftHand" holdpos="35,-30" handle1="0,-10" handle2="0,-20" swingamount="15,15" swingspeed="2" swingwhenholding="True">
+      <StatusEffect type="OnBroken" target="This">
+        <particleemitter particle="whitegoosplash" particleamount="20" velocitymin="0" velocitymax="300" anglemin="0" anglemax="360" scalemin="0.5" scalemax="1.0" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+        <particleemitter particle="brownchunks" particleamount="50" velocitymin="0" velocitymax="700" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Sound file="Content/Sounds/Damage/Gore6.ogg" range="500" />
+        <Remove />
+      </StatusEffect>
+      <StatusEffect type="OnFire" target="This" Condition="-1.0"/>
+      <StatusEffect type="OnActive" target="This" swingamount="100,100" swingspeed="5" setvalue="true">
+        <particleemitter particle="brownchunks" particlespersecond="5" velocitymin="0" velocitymax="500" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Conditional Scale="gte 0.7" />
+      </StatusEffect>
+    </Holdable>
+    <ItemContainer capacity="1" hideitems="true" showcontainedstateindicator="false" maxstacksize="1">
+      <Containable items="antibloodloss1">
+        <StatusEffect type="OnContaining" target="Contained" Condition="-9" noninteractable="true" />        
+        <StatusEffect type="OnContaining" target="This" Scale="0.025"/>
+        <StatusEffect type="OnContaining" target="This" Condition="0" setvalue="true">
+          <Conditional Scale="gte 0.75" />
+          <SpawnCharacter speciesname="peanut"/>
+          <Remove />
+        </StatusEffect>
+      </Containable>
+    </ItemContainer>
+    <LightComponent range="15" lightcolor="180,150,30,150" powerconsumption="0" IsOn="true" castshadows="false" allowingameediting="false" pulsefrequency="0.2" pulseamount="0.30" />
+  </Item>
+  <Item name="" identifier="psilotoadegg" nameidentifier="petegg" Tags="smallitem,monsterfood" hideinmenus="true" health="20" damagedbyexplosions="true" damagedbyprojectiles="true" damagedbymeleeweapons="true" damagedbyrepairtools="true" category="Misc" scale="0.5" impactsoundtag="impact_soft">
+    <PreferredContainer primary="crewcab"/>
+    <PreferredContainer secondary="abandonedstoragecab,piratestoragecab,wreckstoragecab" amount="1" spawnprobability="0.05" />
+    <Sprite texture="Content/Characters/Pets/pets.png" depth="0.7" sourcerect="265,133,43,55" origin="0.5,0.5" />
+    <Price baseprice="500" minleveldifficulty="15">
+      <Price storeidentifier="merchantoutpost" sold="false" />
+      <Price storeidentifier="merchantcity" multiplier="1.2"  />
+      <Price storeidentifier="merchantresearch" multiplier="1.4" minavailable="1" />
+      <Price storeidentifier="merchantmilitary" sold="false" />
+      <Price storeidentifier="merchantmine" sold="false" multiplier="0.75" />
+    </Price>
+    <Deconstruct time="10">
+      <Item identifier="alienblood" />
+      <Item identifier="alienblood" />
+      <Item identifier="adrenalinegland" />
+    </Deconstruct>
+    <Body radius="25" friction="1.0" restitution="0.01" angulardamping="0.8" density="11"/>
+    <Holdable slots="RightHand+LeftHand" holdpos="35,-30" handle1="0,-10" handle2="0,-20" swingamount="15,15" swingspeed="2" swingwhenholding="True">
+      <StatusEffect type="OnBroken" target="This">
+        <particleemitter particle="whitegoosplash" particleamount="20" velocitymin="0" velocitymax="300" anglemin="0" anglemax="360" scalemin="0.5" scalemax="1.0" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+        <particleemitter particle="brownchunks" particleamount="50" velocitymin="0" velocitymax="700" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Sound file="Content/Sounds/Damage/Gore6.ogg" range="500" />
+        <Remove />
+      </StatusEffect>
+      <StatusEffect type="OnFire" target="This" Condition="-1.0"/>
+      <StatusEffect type="OnActive" target="This" swingamount="100,100" swingspeed="5" setvalue="true">
+        <particleemitter particle="brownchunks" particlespersecond="5" velocitymin="0" velocitymax="500" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Conditional Scale="gte 0.7" />
+      </StatusEffect>
+    </Holdable>
+    <ItemContainer capacity="1" hideitems="true" showcontainedstateindicator="false" maxstacksize="1">
+      <Containable items="antibloodloss1">
+        <StatusEffect type="OnContaining" target="Contained" Condition="-9" noninteractable="true" />        
+        <StatusEffect type="OnContaining" target="This" Scale="0.025"/>
+        <StatusEffect type="OnContaining" target="This" Condition="0" setvalue="true">
+          <Conditional Scale="gte 0.75" />
+          <SpawnCharacter speciesname="psilotoad"/>
+          <Remove />
+        </StatusEffect>
+      </Containable>
+    </ItemContainer>
+    <LightComponent range="15" lightcolor="180,150,30,150" powerconsumption="0" IsOn="true" castshadows="false" allowingameediting="false" pulsefrequency="0.2" pulseamount="0.30" />
+  </Item>
+  <Item name="" identifier="orangeboyegg" nameidentifier="petegg" Tags="smallitem,monsterfood" hideinmenus="true" health="20" damagedbyexplosions="true" damagedbyprojectiles="true" damagedbymeleeweapons="true" damagedbyrepairtools="true" category="Misc" scale="0.5" impactsoundtag="impact_soft">
+    <PreferredContainer primary="crewcab"/>
+    <PreferredContainer secondary="abandonedstoragecab,piratestoragecab,wreckstoragecab" amount="1" spawnprobability="0.05" />
+    <Sprite texture="Content/Characters/Pets/pets.png" depth="0.7" sourcerect="266,259,44,56" origin="0.5,0.5" />
+    <Price baseprice="500" minleveldifficulty="15">
+      <Price storeidentifier="merchantoutpost" sold="false" />
+      <Price storeidentifier="merchantcity" multiplier="1.2"  />
+      <Price storeidentifier="merchantresearch" multiplier="1.4" minavailable="1" />
+      <Price storeidentifier="merchantmilitary" sold="false" />
+      <Price storeidentifier="merchantmine" sold="false" multiplier="0.75" />
+    </Price>
+    <Deconstruct time="10">
+      <Item identifier="alienblood" />
+      <Item identifier="alienblood" />
+      <Item identifier="adrenalinegland" />
+    </Deconstruct>
+    <Body radius="25" friction="1.0" restitution="0.01" angulardamping="0.8" density="11"/>
+    <Holdable slots="RightHand+LeftHand" holdpos="35,-30" handle1="0,-10" handle2="0,-20" swingamount="15,15" swingspeed="2" swingwhenholding="True">
+      <StatusEffect type="OnBroken" target="This">
+        <particleemitter particle="whitegoosplash" particleamount="20" velocitymin="0" velocitymax="300" anglemin="0" anglemax="360" scalemin="0.5" scalemax="1.0" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+        <particleemitter particle="brownchunks" particleamount="50" velocitymin="0" velocitymax="700" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Sound file="Content/Sounds/Damage/Gore6.ogg" range="500" />
+        <Remove />
+      </StatusEffect>
+      <StatusEffect type="OnFire" target="This" Condition="-1.0"/>
+      <StatusEffect type="OnActive" target="This" swingamount="100,100" swingspeed="5" setvalue="true">
+        <particleemitter particle="brownchunks" particlespersecond="5" velocitymin="0" velocitymax="500" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Conditional Scale="gte 0.7" />
+      </StatusEffect>
+    </Holdable>
+    <ItemContainer capacity="1" hideitems="true" showcontainedstateindicator="false" maxstacksize="1">
+      <Containable items="antibloodloss1">
+        <StatusEffect type="OnContaining" target="Contained" Condition="-9" noninteractable="true" />        
+        <StatusEffect type="OnContaining" target="This" Scale="0.025"/>
+        <StatusEffect type="OnContaining" target="This" Condition="0" setvalue="true">
+          <Conditional Scale="gte 0.75" />
+          <SpawnCharacter speciesname="orangeboy"/>
+          <Remove />
+        </StatusEffect>
+      </Containable>
+    </ItemContainer>
+    <LightComponent range="15" lightcolor="180,150,30,150" powerconsumption="0" IsOn="true" castshadows="false" allowingameediting="false" pulsefrequency="0.2" pulseamount="0.30" />
+  </Item>
+  <Item name="" identifier="balloonegg" nameidentifier="petegg" Tags="smallitem,monsterfood" hideinmenus="true" health="20" damagedbyexplosions="true" damagedbyprojectiles="true" damagedbymeleeweapons="true" damagedbyrepairtools="true" category="Misc" scale="0.5" impactsoundtag="impact_soft">
+    <PreferredContainer primary="crewcab"/>
+    <PreferredContainer secondary="abandonedstoragecab,piratestoragecab,wreckstoragecab" amount="1" spawnprobability="0.05" />
+    <Sprite texture="Content/Characters/Pets/pets.png" depth="0.7" sourcerect="11,389,43,55" origin="0.5,0.5" />
+    <Price baseprice="500" sold="false" minleveldifficulty="15">
+      <Price storeidentifier="merchantoutpost" />
+      <Price storeidentifier="merchantcity" multiplier="1.2"  />
+      <Price storeidentifier="merchantresearch" multiplier="1.4" />
+      <Price storeidentifier="merchantmilitary" />
+      <Price storeidentifier="merchantmine" multiplier="0.75" />
+    </Price>
+    <Deconstruct time="10">
+      <Item identifier="alienblood" />
+      <Item identifier="alienblood" />
+      <Item identifier="adrenalinegland" />
+    </Deconstruct>
+    <Body radius="25" friction="1.0" restitution="0.01" angulardamping="0.8" density="11"/>
+    <Holdable slots="RightHand+LeftHand" holdpos="35,-30" handle1="0,-10" handle2="0,-20" swingamount="15,15" swingspeed="2" swingwhenholding="True">
+      <StatusEffect type="OnBroken" target="This">
+        <particleemitter particle="whitegoosplash" particleamount="20" velocitymin="0" velocitymax="300" anglemin="0" anglemax="360" scalemin="0.5" scalemax="1.0" emitinterval="0" particlespersecond="0" highqualitycollisiondetection="False" copyentityangle="False" />
+        <particleemitter particle="brownchunks" particleamount="50" velocitymin="0" velocitymax="700" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Sound file="Content/Sounds/Damage/Gore6.ogg" range="500" />
+        <Remove />
+      </StatusEffect>
+      <StatusEffect type="OnFire" target="This" Condition="-1.0"/>
+      <StatusEffect type="OnActive" target="This" swingamount="100,100" swingspeed="5" setvalue="true">
+        <particleemitter particle="brownchunks" particlespersecond="5" velocitymin="0" velocitymax="500" anglemin="0" anglemax="360" scalemin="0.2" scalemax="0.5" />
+        <Conditional Scale="gte 0.7" />
+      </StatusEffect>
+    </Holdable>
+    <ItemContainer capacity="1" hideitems="true" showcontainedstateindicator="false" maxstacksize="1">
+      <Containable items="antibloodloss1">
+        <StatusEffect type="OnContaining" target="Contained" Condition="-9" noninteractable="true" />        
+        <StatusEffect type="OnContaining" target="This" Scale="0.025"/>
+        <StatusEffect type="OnContaining" target="This" Condition="0" setvalue="true">
+          <Conditional Scale="gte 0.75" />
+          <SpawnCharacter speciesname="balloon"/>
+          <Remove />
+        </StatusEffect>
+      </Containable>
+    </ItemContainer>
+    <LightComponent range="15" lightcolor="180,150,30,150" powerconsumption="0" IsOn="true" castshadows="false" allowingameediting="false" pulsefrequency="0.2" pulseamount="0.30" />
+  </Item>
+</Items>
