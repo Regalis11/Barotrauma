@@ -17,8 +17,9 @@ namespace Barotrauma.Networking
     
     abstract class NetworkConnection
     {
-        public const double TimeoutThreshold = 60.0; //full minute for timeout because loading screens can take quite a while
-        public const double TimeoutThresholdInGame = 10.0;
+        // If player takes too long to load mod, server need to wait longer
+        public const double TimeoutThreshold = 600.0; //full minute for timeout because loading screens can take quite a while
+        public const double TimeoutThresholdInGame = 60.0;
 
         public AccountInfo AccountInfo { get; private set; } = AccountInfo.None;
 
