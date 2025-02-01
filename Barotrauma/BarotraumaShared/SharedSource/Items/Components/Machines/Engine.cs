@@ -3,6 +3,7 @@ using System;
 using System.Globalization;
 using System.Xml.Linq;
 using Barotrauma.Networking;
+using FarseerPhysics.Dynamics;
 
 namespace Barotrauma.Items.Components
 {
@@ -144,6 +145,12 @@ namespace Barotrauma.Items.Components
                 UpdateAITargets(noise);
                 //arbitrary multiplier that was added to changes in submarine mass without having to readjust all engines
                 float forceMultiplier = 0.1f;
+                if (item.Submarine.SubBody.Body != null)
+                {
+                    float mass = item.Submarine.SubBody.Body.Mass;
+                    float newDragCorrectionFactor = MathF.Pow(mass / SubmarineBody.InertiaReferenceMass, SubmarineBody.MassToAreaExponent) * SubmarineBody.InertiaReferenceMass / mass;
+                    forceMultiplier *= newDragCorrectionFactor;
+                }
                 if (User != null)
                 {
                     forceMultiplier *= MathHelper.Lerp(0.5f, 2.0f, (float)Math.Sqrt(User.GetSkillLevel(Tags.HelmSkill) / 100));

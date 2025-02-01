@@ -61,6 +61,10 @@ namespace Barotrauma
         private float forceUpwardsTimer;
         private const float ForceUpwardsDelay = 30.0f;
 
+        // submarines greater than "InertialReferenceMass" will accelerate slower, and vica versa. 30000 is about the size of the Humpback.
+        public const float InertiaReferenceMass = 30000f;
+        public const float MassToAreaExponent = 2f/3f;
+
         struct Impact
         {
             public Fixture Target;
@@ -449,12 +453,13 @@ namespace Barotrauma
 
                     jointEdge = jointEdge.Next;
                 }
-                
+                float surfaceArea = MathF.Pow(Body.Mass / InertiaReferenceMass, MassToAreaExponent) * InertiaReferenceMass;
+
                 float horizontalDragCoefficient = MathHelper.Clamp(HorizontalDrag + attachedMass / 5000.0f, 0.0f, MaxDrag);
-                totalForce.X -= Math.Sign(Body.LinearVelocity.X) * Body.LinearVelocity.X * Body.LinearVelocity.X * horizontalDragCoefficient * Body.Mass;
-                
+                totalForce.X -= Math.Sign(Body.LinearVelocity.X) * Body.LinearVelocity.X * Body.LinearVelocity.X * horizontalDragCoefficient * surfaceArea;
+
                 float verticalDragCoefficient = MathHelper.Clamp(VerticalDrag + attachedMass / 5000.0f, 0.0f, MaxDrag);
-                totalForce.Y -= Math.Sign(Body.LinearVelocity.Y) * Body.LinearVelocity.Y * Body.LinearVelocity.Y * verticalDragCoefficient * Body.Mass;
+                totalForce.Y -= Math.Sign(Body.LinearVelocity.Y) * Body.LinearVelocity.Y * Body.LinearVelocity.Y * verticalDragCoefficient * surfaceArea;
             }
 
             ApplyForce(totalForce);
