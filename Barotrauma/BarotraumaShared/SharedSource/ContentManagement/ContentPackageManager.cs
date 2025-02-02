@@ -48,7 +48,12 @@ namespace Barotrauma
                 public static ImmutableArray<RegularPackage>? Regular;
             }
 
-            public static void SetCore(CorePackage newCore) => SetCoreEnumerable(newCore).Consume();
+            public static void SetCore(CorePackage newCore)
+            {
+                newCore.TryToInstallCustomFiles();
+
+                SetCoreEnumerable(newCore).Consume();
+            }
             
             public static IEnumerable<LoadProgress> SetCoreEnumerable(CorePackage newCore)
             {
