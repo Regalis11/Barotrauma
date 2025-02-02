@@ -147,6 +147,9 @@ namespace Barotrauma
         [Serialize("", IsPropertySaveable.Yes, description: "Identifier or tag of the item the character's items are placed inside when the character despawns."), Editable]
         public Identifier DespawnContainer { get; private set; }
 
+        [Serialize(false, IsPropertySaveable.Yes, description: "Does this character have night vision when player controlled?"), Editable]
+        public bool HasNightVision { get; set; }
+
         public readonly CharacterFile File;
 
         public XDocument VariantFile { get; private set; }
