@@ -165,6 +165,9 @@ namespace Barotrauma
         [Serialize("-0.15, 0.0", IsPropertySaveable.Yes, description: "Added to the calculated hand positions, e.g. a value of {-1.0, 0.0f} would make the character \"drag\" their hands one unit behind them."), Editable(DecimalCount = 2)]
         public Vector2 HandMoveOffset { get; set; }
 
+        [Serialize(false, IsPropertySaveable.Yes, description: "Should the Hand Move Offset values affect the hands even when stationary?"), Editable]
+        public bool ApplyHandMoveOffsetWhenStationary { get; set; }
+
         [Serialize(-1.0f, IsPropertySaveable.Yes, description: "The position of the hands is clamped below this (relative to the position of the character's torso)."), Editable(DecimalCount = 2)]
         public float HandClampY { get; set; }
 

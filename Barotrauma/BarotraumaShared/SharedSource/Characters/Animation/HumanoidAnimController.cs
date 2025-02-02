@@ -705,6 +705,7 @@ namespace Barotrauma
             }
 
             Vector2 waistPos = waist != null ? waist.SimPosition : torso.SimPosition;
+            int currentDirectionSign = character.IsFlipped ? -1 : 1;
 
             if (movingHorizontally)
             {
@@ -760,29 +761,6 @@ namespace Barotrauma
                             currentGroundedParams.LegBendTorque, currentGroundedParams.FootTorque, currentGroundedParams.FootAngleInRadians);
                     }
                 }
-
-                //calculate the positions of hands
-                handPos = torso.SimPosition;
-                handPos.X = -walkPosX * currentGroundedParams.HandMoveAmount.X;
-
-                float lowerY = currentGroundedParams.HandClampY;
-
-                handPos.Y = lowerY + (float)(Math.Abs(Math.Sin(WalkPos - Math.PI * 1.5f) * currentGroundedParams.HandMoveAmount.Y));
-
-                Vector2 posAddition = new Vector2(Math.Sign(movement.X) * HandMoveOffset.X, HandMoveOffset.Y);
-
-                if (rightHand != null && !rightHand.Disabled)
-                {
-                    HandIK(rightHand,
-                        torso.SimPosition + posAddition + new Vector2(-handPos.X, (Math.Sign(walkPosX) == Math.Sign(Dir)) ? handPos.Y : lowerY),
-                        currentGroundedParams.ArmMoveStrength, currentGroundedParams.HandMoveStrength);
-                }
-                if (leftHand != null && !leftHand.Disabled)
-                {
-                    HandIK(leftHand,
-                        torso.SimPosition + posAddition + new Vector2(handPos.X, (Math.Sign(walkPosX) == Math.Sign(-Dir)) ? handPos.Y : lowerY),
-                        currentGroundedParams.ArmMoveStrength, currentGroundedParams.HandMoveStrength);
-                }
             }
             else
             {
@@ -829,7 +807,10 @@ namespace Barotrauma
                         FootIK(foot, footPos, legBendTorque, currentGroundedParams.FootTorque, currentGroundedParams.FootAngleInRadians);
                     }
                 }
+            }
 
+            if(!movingHorizontally && !currentGroundedParams.ApplyHandMoveOffsetWhenStationary)
+            {
                 for (int i = 0; i < 2; i++)
                 {
                     var hand = i == 0 ? rightHand : leftHand;
@@ -862,6 +843,31 @@ namespace Barotrauma
                     {
                         hand.body.ApplyTorque(MathHelper.Clamp(-wrist.JointAngle, -MathHelper.PiOver2, MathHelper.PiOver2) * hand.Mass * 100f * currentGroundedParams.HandMoveStrength);
                     }
+                }
+            }
+            else
+            {
+                //calculate the positions of hands
+                handPos = torso.SimPosition;
+                handPos.X = -walkPosX * currentGroundedParams.HandMoveAmount.X;
+
+                float lowerY = currentGroundedParams.HandClampY;
+
+                handPos.Y = lowerY + (float)(Math.Abs(Math.Sin(WalkPos - Math.PI * 1.5f) * currentGroundedParams.HandMoveAmount.Y));
+
+                Vector2 posAddition = new Vector2(currentDirectionSign * HandMoveOffset.X, HandMoveOffset.Y);
+
+                if (rightHand != null && !rightHand.Disabled)
+                {
+                    HandIK(rightHand,
+                        torso.SimPosition + posAddition + new Vector2(-handPos.X, (currentDirectionSign == Math.Sign(Dir)) ? handPos.Y : lowerY),
+                        currentGroundedParams.ArmMoveStrength, currentGroundedParams.HandMoveStrength);
+                }
+                if (leftHand != null && !leftHand.Disabled)
+                {
+                    HandIK(leftHand,
+                        torso.SimPosition + posAddition + new Vector2(handPos.X, (currentDirectionSign == Math.Sign(-Dir)) ? handPos.Y : lowerY),
+                        currentGroundedParams.ArmMoveStrength, currentGroundedParams.HandMoveStrength);
                 }
             }
         }
