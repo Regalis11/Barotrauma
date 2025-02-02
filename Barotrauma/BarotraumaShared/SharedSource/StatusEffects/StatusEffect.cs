@@ -384,6 +384,10 @@ namespace Barotrauma
             /// </summary>
             public readonly bool Proportional;
             /// <summary>
+            /// What is the maximum skill amount that can be added proportionally.
+            /// </summary>
+            public readonly float ProportionalMaxAmount;
+            /// <summary>
             /// Should the skill increase popup be always shown regardless of how much the skill increases?
             /// Normally it's only shown when the skill reaches the next integer value.
             /// </summary>
@@ -396,6 +400,7 @@ namespace Barotrauma
                 TriggerTalents = element.GetAttributeBool(nameof(TriggerTalents), true);
                 UseDeltaTime = element.GetAttributeBool(nameof(UseDeltaTime), false);
                 Proportional = element.GetAttributeBool(nameof(Proportional), false);
+                ProportionalMaxAmount = element.GetAttributeFloat(nameof(ProportionalMaxAmount), 2);
                 AlwayShowNotification = element.GetAttributeBool(nameof(AlwayShowNotification), false);
 
                 if (SkillIdentifier == Identifier.Empty)
@@ -2010,7 +2015,7 @@ namespace Barotrauma
 
                                 if (giveSkill.Proportional)
                                 {
-                                    targetCharacter.Info?.ApplySkillGain(skillIdentifier, amount, !giveSkill.TriggerTalents, forceNotification: giveSkill.AlwayShowNotification);
+                                    targetCharacter.Info?.ApplySkillGain(skillIdentifier, amount, !giveSkill.TriggerTalents, giveSkill.ProportionalMaxAmount, giveSkill.AlwayShowNotification);
                                 }
                                 else
                                 {
