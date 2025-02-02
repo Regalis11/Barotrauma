@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Items>
+
+  <Item name="Spawner" nameidentifier="spawner" identifier="spawner" description="" width="128" height="192" texturescale="0.5,0.5" scale="0.5" category="Electrical" noninteractable="true" spritecolor="255,255,150,255" >
+    <sprite texture="Content/Map/MapAtlas.png" sourcerect="784,526,100,100" depth="0.800" premultiplyalpha="false" origin="0.5,0.5" />
+    <EntitySpawnerComponent />
+    <ConnectionPanel selectkey="Action" canbeselected="true" msg="ItemMsgRewireScrewdriver" hudpriority="10">
+      <GuiFrame relativesize="0.2,0.32" minsize="400,350" maxsize="480,420" anchor="Center" style="ConnectionPanel" />
+      <RequiredItem items="screwdriver" type="Equipped" />
+      <input name="trigger_in" displayname="connection.turrettriggerin" />
+      <input name="toggle" displayname="connection.togglestate" />
+      <input name="set_state" displayname="connection.setstate" />      
+      <output name="state_out" displayname="connection.stateout" fallbackdisplayname="connection.signalout" />
+    </ConnectionPanel> 
+    <CustomInterface canbeselected="true" pickkey="Use" drawhudwhenequipped="true" allowuioverlap="false">
+      <GuiFrame style="ItemUI" absoluteoffset="0,0" anchor="BottomCenter" relativesize="0.2,0.13" />
+      <TextBox text="Item Identifier" propertyname="ItemIdentifier" maxtextlength="50"/>
+      <TextBox text="Species Name" propertyname="Speciesname" maxtextlength="50"/> 
+    </CustomInterface>    
+  </Item>
+  
+</Items>
