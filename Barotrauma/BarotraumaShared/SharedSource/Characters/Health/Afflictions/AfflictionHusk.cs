@@ -385,6 +385,10 @@ namespace Barotrauma
             }
 
             husk.SetStun(5);
+            if (character.IsFlipped)
+            {
+                husk.TryFlipCharacter();
+            }
             yield return new WaitForSeconds(5, false);
 #if CLIENT
             husk?.PlaySound(CharacterSound.SoundType.Idle);

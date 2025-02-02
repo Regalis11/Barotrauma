@@ -4977,6 +4977,10 @@ namespace Barotrauma
                     corpse.EnableDespawn = false;
                     selectedPrefab.GiveItems(corpse, wreck, sp);
                     bool spawnAsHusk = Rand.Value() <= Loaded.GenerationParams.HuskProbability;
+                    if(Rand.Value() <= 0.5)
+                    {
+                        corpse.TryFlipCharacter(); // Random chance to spawn flipped
+                    }
                     if (spawnAsHusk)
                     {
                         corpse.TurnIntoHusk(playDead: true);
