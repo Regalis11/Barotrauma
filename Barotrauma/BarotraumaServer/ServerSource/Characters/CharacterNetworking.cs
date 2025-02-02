@@ -661,6 +661,7 @@ namespace Barotrauma
         /// <param name="forceAfflictionData">Normally full affliction data is not written for dead characters, this can be used to force them to be written</param>
         private void WriteStatus(IWriteMessage msg, bool forceAfflictionData = false)
         {
+            msg.WriteBoolean(TriggerDeathEffects);
             msg.WriteBoolean(IsDead);
             if (IsDead)
             {

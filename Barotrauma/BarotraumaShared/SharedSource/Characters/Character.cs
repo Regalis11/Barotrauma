@@ -1173,6 +1173,9 @@ namespace Barotrauma
             }
         }
 
+        // If set to false, the character won't trigger death status effects, death sounds or have death notifications show up in their chat when they die.
+        public bool TriggerDeathEffects { get; set; } = true;
+
         public bool EnableDespawn { get; set; } = true;
 
         public CauseOfDeath CauseOfDeath
@@ -4972,7 +4975,10 @@ namespace Barotrauma
             //it's important that we set isDead before executing the status effects,
             //otherwise a statuseffect might kill the character "again" and trigger a loop that crashes the game
             isDead = true;
-            ApplyStatusEffects(ActionType.OnDeath, 1.0f);
+            if (TriggerDeathEffects)
+            {
+                ApplyStatusEffects(ActionType.OnDeath, 1.0f);
+            }
 
 #if CLIENT
             // Keep permadeath status in sync (to show it correctly in the UI, the server takes care of the actual logic)
@@ -5040,7 +5046,7 @@ namespace Barotrauma
                 AchievementManager.OnCharacterKilled(this, CauseOfDeath);
             }
 
-            KillProjSpecific(causeOfDeath, causeOfDeathAffliction, log);
+            KillProjSpecific(causeOfDeath, causeOfDeathAffliction, log, TriggerDeathEffects);
 
             if (info != null)
             {
@@ -5077,7 +5083,7 @@ namespace Barotrauma
             }
             GameMain.GameSession?.KillCharacter(this);
         }
-        partial void KillProjSpecific(CauseOfDeathType causeOfDeath, Affliction causeOfDeathAffliction, bool log);
+        partial void KillProjSpecific(CauseOfDeathType causeOfDeath, Affliction causeOfDeathAffliction, bool log, bool triggerDeathEffects);
 
         public void Revive(bool removeAfflictions = true, bool createNetworkEvent = false)
         {
