@@ -170,6 +170,29 @@ namespace Barotrauma
         [Serialize(50.0f, IsPropertySaveable.Yes, description: "How much torque is used to rotate the torso to the correct orientation."), Editable(MinValueFloat = 0, MaxValueFloat = 1000, ValueStep = 1)]
         public float TorsoTorque { get; set; }
 
+        public struct LimbConstantAngleData
+        {
+            public float ConstantAngle { get; set; }
+            public float ConstantTorque { get; set; }
+
+            public LimbConstantAngleData(float constantAngle, float constantTorque)
+            {
+                ConstantAngle = constantAngle;
+                ConstantTorque = constantTorque;
+            }
+        }
+        /// <summary>
+        /// Key = limb id, value = LimbConstantAngleData struct with two properties: constant angle and constant torque
+        /// </summary>
+        public Dictionary<int, LimbConstantAngleData> LimbConstantAnglesData { get; set; } = new Dictionary<int, LimbConstantAngleData>();
+
+        [Serialize(null, IsPropertySaveable.Yes), Editable]
+        public string LimbConstantAngles
+        {
+            get => ParseLimbConstantAngles(LimbConstantAnglesData);
+            set => SetLimbConstantAngles(LimbConstantAnglesData, value);
+        }
+
         [Header("Legs")]
         [Serialize(25.0f, IsPropertySaveable.Yes, description: "How much torque is used to rotate the feet to the correct orientation."), Editable(MinValueFloat = 0, MaxValueFloat = 1000, ValueStep = 1)]
         public float FootTorque { get; set; }
@@ -486,6 +509,12 @@ namespace Barotrauma
             return string.Join(",", footAngles.Select(kv => kv.Key + ": " + kv.Value.ToString("G", CultureInfo.InvariantCulture)).ToArray());
         }
 
+        protected static string ParseLimbConstantAngles(Dictionary<int, LimbConstantAngleData> limbAngles)
+        {
+            //convert to the format "id1:angle;torque,id2:angle;torque"
+            return string.Join(",", limbAngles.Select(kv => $"{kv.Key}: {kv.Value.ConstantAngle.ToString("G", CultureInfo.InvariantCulture)};" + $"{kv.Value.ConstantTorque.ToString("G", CultureInfo.InvariantCulture)}"));
+        }
+
         protected static void SetFootAngles(Dictionary<int, float> footAngles, string value)
         {
             footAngles.Clear();
@@ -506,6 +535,42 @@ namespace Barotrauma
                     continue;
                 }
                 footAngles[limbIndex] = angle;
+            }
+        }
+
+        protected static void SetLimbConstantAngles(Dictionary<int, LimbConstantAngleData> limbAngles, string value)
+        {
+            limbAngles.Clear();
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            string[] keyValuePairs = value.Split(',');
+            foreach (string joinedKvp in keyValuePairs)
+            {
+                string[] keyValuePair = joinedKvp.Split(':');
+                if (keyValuePair.Length != 2 ||
+                    !int.TryParse(keyValuePair[0].Trim(), out int limbIndex))
+                {
+                    DebugConsole.ThrowError("Failed to parse limb constant angles (" + value + ")");
+                    continue;
+                }
+
+                string[] dataValues = keyValuePair[1].Split(';');
+                if (dataValues.Length != 2 ||
+                    !float.TryParse(dataValues[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out float constantAngle) ||
+                    !float.TryParse(dataValues[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out float constantTorque))
+                {
+                    DebugConsole.ThrowError($"Failed to parse angle or torque for limb {limbIndex} ({keyValuePair[1]})");
+                    continue;
+                }
+
+                limbAngles[limbIndex] = new LimbConstantAngleData
+                {
+                    ConstantAngle = constantAngle,
+                    ConstantTorque = constantTorque
+                };
             }
         }
 

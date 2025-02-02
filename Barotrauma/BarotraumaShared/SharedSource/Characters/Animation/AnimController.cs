@@ -319,14 +319,24 @@ namespace Barotrauma
         
         protected void UpdateConstantTorque(float deltaTime)
         {
+            if (character.IsIncapacitated) { return; }
+            if (character.Stun > 0.01f) { return; }
             foreach (var limb in Limbs)
             {
                 if (limb.IsSevered) { continue; }
-                if (Math.Abs(limb.Params.ConstantTorque) > 0)
+                float angleToApply = limb.Params.ConstantAngle;
+                float torqueToApply = limb.Params.ConstantTorque;
+                float movementFactor = Math.Max(character.AnimController.Collider.LinearVelocity.Length() * 0.5f, 1);
+                if (CurrentAnimationParams.LimbConstantAnglesData.ContainsKey(limb.Params.ID))
                 {
-                    // TODO: not sure if this works on ground
-                    float movementFactor = Math.Max(character.AnimController.Collider.LinearVelocity.Length() * 0.5f, 1);
-                    limb.body.SmoothRotate(MainLimb.Rotation + MathHelper.ToRadians(limb.Params.ConstantAngle) * Dir, limb.Mass * limb.Params.ConstantTorque * movementFactor, wrapAngle: true);
+                    var constantAngleData = CurrentAnimationParams.LimbConstantAnglesData[limb.Params.ID];
+
+                    angleToApply = constantAngleData.ConstantAngle;
+                    torqueToApply = constantAngleData.ConstantTorque;
+                }
+                if (torqueToApply > 0f) 
+                {
+                    limb.body.SmoothRotate(MainLimb.Rotation + MathHelper.ToRadians(angleToApply) * Dir, limb.Mass * torqueToApply * movementFactor, wrapAngle: true);
                 }
             }
         }
