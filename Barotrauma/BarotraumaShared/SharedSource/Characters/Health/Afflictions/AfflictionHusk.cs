@@ -296,7 +296,6 @@ namespace Barotrauma
             var client = GameMain.Server?.ConnectedClients.FirstOrDefault(c => c.Character == character);
 #endif
             character.Enabled = false;
-            Entity.Spawner.AddEntityToRemoveQueue(character);
             UnsubscribeFromDeathEvent();
 
             Identifier huskedSpeciesName = GetHuskedSpeciesName(character.Params, Prefab as AfflictionPrefabHusk);
@@ -385,6 +384,7 @@ namespace Barotrauma
             }
 
             husk.SetStun(5);
+            Entity.Spawner.AddEntityToRemoveQueue(character);
             yield return new WaitForSeconds(5, false);
 #if CLIENT
             husk?.PlaySound(CharacterSound.SoundType.Idle);

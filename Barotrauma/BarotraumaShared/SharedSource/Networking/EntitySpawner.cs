@@ -367,6 +367,12 @@ namespace Barotrauma
                     if (client != null) GameMain.Server.SetClientCharacter(client, null);
                 }
 #endif
+#if CLIENT
+                if (GameMain.IsSingleplayer && character != null && Character.Controlled == character && character.IsOnPlayerTeam)
+                {
+                    GameMain.GameSession.CrewManager.SelectNextCharacter();
+                }
+#endif
             }
 
             spawnOrRemoveQueue.Enqueue(entity);
